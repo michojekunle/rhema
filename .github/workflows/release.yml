@@ -26,9 +26,9 @@ jobs:
           bun-version: latest
 
       - name: Install LLVM and Clang (for Whisper bindings)
-        uses: llvm/actions/install-llvm@v1
+        uses: KyleMayes/install-llvm-action@v2
         with:
-          version: "16"
+          version: "16.0"
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
@@ -48,7 +48,7 @@ jobs:
         run: bun run setup:all
 
       - name: Build and Package Tauri App
-        uses: tauri-apps/tauri-action@v2
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
