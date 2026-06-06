@@ -51,6 +51,8 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
+          CMAKE_OSX_DEPLOYMENT_TARGET: "11.0"
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "Rhema ${{ github.ref_name || 'v0.0.1' }}"
