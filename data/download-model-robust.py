@@ -20,6 +20,18 @@ FILES = [
 ]
 
 def main():
+    # Force stdout/stderr to use UTF-8 if they have encoding limitations
+    if hasattr(sys.stdout, 'reconfigure'):
+        try:
+            sys.stdout.reconfigure(encoding='utf-8')
+        except Exception:
+            pass
+    if hasattr(sys.stderr, 'reconfigure'):
+        try:
+            sys.stderr.reconfigure(encoding='utf-8')
+        except Exception:
+            pass
+
     print(f"Starting robust download of {REPO_ID} (12 files)...")
     
     # Disable XET protocol which stalls on large files
@@ -39,18 +51,19 @@ def main():
                     repo_type="model"
                 )
                 success = True
-                print(f"✓ Completed: {filename}")
+                print(f"[OK] Completed: {filename}")
                 break
             except Exception as e:
-                print(f"⚠️ Attempt {attempt}/15 failed for {filename}: {e}")
+                print(f"[WARN] Attempt {attempt}/15 failed for {filename}: {e}")
                 print("Waiting 10 seconds before retrying...")
                 time.sleep(10)
                 
         if not success:
-            print(f"❌ Failed to download {filename} after multiple attempts.")
+            print(f"[ERROR] Failed to download {filename} after multiple attempts.")
             sys.exit(1)
             
-    print("\n🎉 All 12 files successfully downloaded!")
+    print("\n[SUCCESS] All 12 files successfully downloaded!")
 
 if __name__ == "__main__":
     main()
+

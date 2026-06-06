@@ -98,6 +98,18 @@ export async function ensureVenv(pythonCmd: string): Promise<void> {
     process.exit(1)
   }
   console.log("  ✓ Virtual environment created")
+
+  console.log("  Upgrading pip to avoid resolver issues...")
+  const upgradeProc = Bun.spawn([venvPython, "-m", "pip", "install", "--upgrade", "pip"], {
+    stdout: "inherit",
+    stderr: "inherit",
+  })
+  const upgradeExitCode = await upgradeProc.exited
+  if (upgradeExitCode !== 0) {
+    console.warn("  ⚠️ Warning: Failed to upgrade pip. Continuing with default version...")
+  } else {
+    console.log("  ✓ Pip upgraded successfully")
+  }
 }
 
 export async function installPipDeps(packages: string[]): Promise<void> {
