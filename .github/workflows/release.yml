@@ -1,0 +1,59 @@
+name: "Release Build"
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest, ubuntu-22.04]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install LLVM and Clang (for Whisper bindings)
+        uses: llvm/actions/install-llvm@v1
+        with:
+          version: "16"
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - name: Install Rust stable
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Install Node/Bun dependencies
+        run: bun install
+
+      # We run the setup pipeline to generate the database, models, and embeddings 
+      # so they are available for packaging/compilation if needed.
+      - name: Run setup pipeline
+        run: bun run setup:all
+
+      - name: Build and Package Tauri App
+        uses: tauri-apps/tauri-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Rhema ${{ github.ref_name || 'v0.0.1' }}"
+          releaseBody: "Automated release build of Rhema"
+          releaseDraft: true
+          prerelease: false
