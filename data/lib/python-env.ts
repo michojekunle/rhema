@@ -7,7 +7,7 @@
  */
 
 import { join } from "node:path"
-import { existsSync } from "node:fs"
+import { existsSync, rmSync } from "node:fs"
 
 export const PROJECT_ROOT = join(import.meta.dir, "..", "..")
 export const VENV_DIR = join(PROJECT_ROOT, ".venv")
@@ -76,9 +76,15 @@ export async function ensureVenv(pythonCmd: string): Promise<void> {
       ? getVenvBin("python")
       : getVenvBin("python3")
 
-  if (existsSync(venvPython)) {
-    console.log(`  ⏭ Virtual environment already exists at ${VENV_DIR}`)
-    return
+  const venvPip = getVenvBin("pip")
+
+  if (existsSync(VENV_DIR)) {
+    if (existsSync(venvPython) && existsSync(venvPip)) {
+      console.log(`  ⏭ Virtual environment already exists at ${VENV_DIR}`)
+      return
+    }
+    console.log(`  Cleaning up broken virtual environment at ${VENV_DIR}`)
+    rmSync(VENV_DIR, { recursive: true, force: true })
   }
 
   console.log(`  Creating virtual environment at ${VENV_DIR}...`)
@@ -96,8 +102,36 @@ export async function ensureVenv(pythonCmd: string): Promise<void> {
 
 export async function installPipDeps(packages: string[]): Promise<void> {
   const pip = getVenvBin("pip")
-  console.log(`  Installing ${packages.join(", ")}...`)
-  const proc = Bun.spawn([pip, "install", ...packages], {
+  const python = getVenvBin(process.platform === "win32" ? "python" : "python3")
+
+  const missingPackages: string[] = []
+  for (const pkg of packages) {
+    const cleanName = pkg.split(/[\[>=<]/)[0].trim()
+    try {
+      const proc = Bun.spawn([
+        python,
+        "-c",
+        `import importlib.metadata; importlib.metadata.version('${cleanName}')`
+      ], {
+        stdout: "pipe",
+        stderr: "pipe"
+      })
+      const exitCode = await proc.exited
+      if (exitCode !== 0) {
+        missingPackages.push(pkg)
+      }
+    } catch {
+      missingPackages.push(pkg)
+    }
+  }
+
+  if (missingPackages.length === 0) {
+    console.log("  ⏭ Skip: All dependencies are already installed.")
+    return
+  }
+
+  console.log(`  Installing missing dependencies: ${missingPackages.join(", ")}...`)
+  const proc = Bun.spawn([pip, "install", ...missingPackages], {
     stdout: "inherit",
     stderr: "inherit",
   })
@@ -106,6 +140,16 @@ export async function installPipDeps(packages: string[]): Promise<void> {
     console.error("\n❌ Failed to install dependencies.")
     process.exit(1)
   }
+
+  // hf-xet is a transitive dep of huggingface_hub that uses a custom Xet
+  // transfer protocol for large files. On some systems it stalls silently
+  // without timeout or retry. Remove it to force plain HTTPS downloads.
+  const uninstallProc = Bun.spawn([pip, "uninstall", "hf-xet", "-y"], {
+    stdout: "inherit",
+    stderr: "pipe", // suppress "not installed" warning if already absent
+  })
+  await uninstallProc.exited
+
   console.log("  ✓ Dependencies installed")
 }
 
