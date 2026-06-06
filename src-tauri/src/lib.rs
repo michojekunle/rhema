@@ -73,7 +73,7 @@ pub fn run() {
             let db_path = app
                 .path()
                 .resource_dir()
-                .map(|p| p.join("data/rhema.db"))
+                .map(|p| p.join("_up_/data/rhema.db"))
                 .ok()
                 .filter(|p| p.exists())
                 .unwrap_or_else(|| {
@@ -100,8 +100,8 @@ pub fn run() {
             let model_path = {
                 let dev_int8 = base_dir.join("models/qwen3-embedding-0.6b-int8/model_quantized.onnx");
                 let dev_fp32 = base_dir.join("models/qwen3-embedding-0.6b/model.onnx");
-                let prod_int8 = app.path().resource_dir().map(|p| p.join("models/qwen3-embedding-0.6b-int8/model_quantized.onnx")).ok();
-                let prod_fp32 = app.path().resource_dir().map(|p| p.join("models/qwen3-embedding-0.6b/model.onnx")).ok();
+                let prod_int8 = app.path().resource_dir().map(|p| p.join("_up_/models/qwen3-embedding-0.6b-int8/model_quantized.onnx")).ok();
+                let prod_fp32 = app.path().resource_dir().map(|p| p.join("_up_/models/qwen3-embedding-0.6b/model.onnx")).ok();
 
                 if dev_int8.exists() {
                     log::info!("Using INT8 quantized ONNX model (dev)");
@@ -121,7 +121,7 @@ pub fn run() {
             };
             let tokenizer_path = {
                 let dev = base_dir.join("models/qwen3-embedding-0.6b/tokenizer.json");
-                let prod = app.path().resource_dir().map(|p| p.join("models/qwen3-embedding-0.6b/tokenizer.json")).ok();
+                let prod = app.path().resource_dir().map(|p| p.join("_up_/models/qwen3-embedding-0.6b/tokenizer.json")).ok();
                 if dev.exists() {
                     dev
                 } else if prod.as_ref().map_or(false, |p| p.exists()) {
@@ -132,7 +132,7 @@ pub fn run() {
             };
             let embeddings_path = {
                 let dev = base_dir.join("embeddings/kjv-qwen3-0.6b.bin");
-                let prod = app.path().resource_dir().map(|p| p.join("embeddings/kjv-qwen3-0.6b.bin")).ok();
+                let prod = app.path().resource_dir().map(|p| p.join("_up_/embeddings/kjv-qwen3-0.6b.bin")).ok();
                 if dev.exists() {
                     dev
                 } else if prod.as_ref().map_or(false, |p| p.exists()) {
@@ -143,7 +143,7 @@ pub fn run() {
             };
             let ids_path = {
                 let dev = base_dir.join("embeddings/kjv-qwen3-0.6b-ids.bin");
-                let prod = app.path().resource_dir().map(|p| p.join("embeddings/kjv-qwen3-0.6b-ids.bin")).ok();
+                let prod = app.path().resource_dir().map(|p| p.join("_up_/embeddings/kjv-qwen3-0.6b-ids.bin")).ok();
                 if dev.exists() {
                     dev
                 } else if prod.as_ref().map_or(false, |p| p.exists()) {

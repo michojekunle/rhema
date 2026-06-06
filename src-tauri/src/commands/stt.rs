@@ -82,7 +82,8 @@ pub async fn start_transcription(
                     app.path()
                         .resource_dir()
                         .map(|p| {
-                            p.join("models")
+                            p.join("_up_")
+                                .join("models")
                                 .join("whisper")
                                 .join(model_filename)
                         })
