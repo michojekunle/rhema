@@ -73,7 +73,7 @@ pub fn run() {
             let db_path = app
                 .path()
                 .resource_dir()
-                .map(|p| p.join("rhema.db"))
+                .map(|p| p.join("data/rhema.db"))
                 .ok()
                 .filter(|p| p.exists())
                 .unwrap_or_else(|| {
@@ -98,21 +98,60 @@ pub fn run() {
             // Prefer INT8 quantized model (~571MB) over FP32 (~2.4GB)
             let base_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
             let model_path = {
-                let int8 = base_dir.join("models/qwen3-embedding-0.6b-int8/model_quantized.onnx");
-                let fp32 = base_dir.join("models/qwen3-embedding-0.6b/model.onnx");
-                if int8.exists() {
-                    log::info!("Using INT8 quantized ONNX model");
-                    int8
-                } else if fp32.exists() {
-                    log::info!("Using FP32 ONNX model (INT8 not found)");
-                    fp32
+                let dev_int8 = base_dir.join("models/qwen3-embedding-0.6b-int8/model_quantized.onnx");
+                let dev_fp32 = base_dir.join("models/qwen3-embedding-0.6b/model.onnx");
+                let prod_int8 = app.path().resource_dir().map(|p| p.join("models/qwen3-embedding-0.6b-int8/model_quantized.onnx")).ok();
+                let prod_fp32 = app.path().resource_dir().map(|p| p.join("models/qwen3-embedding-0.6b/model.onnx")).ok();
+
+                if dev_int8.exists() {
+                    log::info!("Using INT8 quantized ONNX model (dev)");
+                    dev_int8
+                } else if dev_fp32.exists() {
+                    log::info!("Using FP32 ONNX model (dev)");
+                    dev_fp32
+                } else if prod_int8.as_ref().map_or(false, |p| p.exists()) {
+                    log::info!("Using INT8 quantized ONNX model (prod)");
+                    prod_int8.unwrap()
+                } else if prod_fp32.as_ref().map_or(false, |p| p.exists()) {
+                    log::info!("Using FP32 ONNX model (prod)");
+                    prod_fp32.unwrap()
                 } else {
-                    fp32
+                    dev_fp32
                 }
             };
-            let tokenizer_path = base_dir.join("models/qwen3-embedding-0.6b/tokenizer.json");
-            let embeddings_path = base_dir.join("embeddings/kjv-qwen3-0.6b.bin");
-            let ids_path = base_dir.join("embeddings/kjv-qwen3-0.6b-ids.bin");
+            let tokenizer_path = {
+                let dev = base_dir.join("models/qwen3-embedding-0.6b/tokenizer.json");
+                let prod = app.path().resource_dir().map(|p| p.join("models/qwen3-embedding-0.6b/tokenizer.json")).ok();
+                if dev.exists() {
+                    dev
+                } else if prod.as_ref().map_or(false, |p| p.exists()) {
+                    prod.unwrap()
+                } else {
+                    dev
+                }
+            };
+            let embeddings_path = {
+                let dev = base_dir.join("embeddings/kjv-qwen3-0.6b.bin");
+                let prod = app.path().resource_dir().map(|p| p.join("embeddings/kjv-qwen3-0.6b.bin")).ok();
+                if dev.exists() {
+                    dev
+                } else if prod.as_ref().map_or(false, |p| p.exists()) {
+                    prod.unwrap()
+                } else {
+                    dev
+                }
+            };
+            let ids_path = {
+                let dev = base_dir.join("embeddings/kjv-qwen3-0.6b-ids.bin");
+                let prod = app.path().resource_dir().map(|p| p.join("embeddings/kjv-qwen3-0.6b-ids.bin")).ok();
+                if dev.exists() {
+                    dev
+                } else if prod.as_ref().map_or(false, |p| p.exists()) {
+                    prod.unwrap()
+                } else {
+                    dev
+                }
+            };
 
             if model_path.exists() && tokenizer_path.exists() {
                 use rhema_detection::semantic::embedder::TextEmbedder;
