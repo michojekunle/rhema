@@ -124,7 +124,7 @@ async function main() {
       HF_HUB_DOWNLOAD_TIMEOUT: "60",
       HF_HUB_DISABLE_XET: "1",
       HF_XET_DISABLE: "1",
-      HF_ENDPOINT: process.env.HF_ENDPOINT || "https://hf-mirror.com",
+      HF_ENDPOINT: process.env.HF_ENDPOINT || "https://huggingface.co",
     }
 
     // Export FP32

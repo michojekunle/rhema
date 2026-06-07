@@ -14,7 +14,7 @@ const PROJECT_ROOT = join(import.meta.dir, "..")
 const MODELS_DIR = join(PROJECT_ROOT, "models", "whisper")
 const MODEL_FILE = "ggml-large-v3-turbo-q8_0.bin"
 const MODEL_PATH = join(MODELS_DIR, MODEL_FILE)
-const hfEndpoint = process.env.HF_ENDPOINT || "https://hf-mirror.com"
+const hfEndpoint = process.env.HF_ENDPOINT || "https://huggingface.co"
 const MODEL_URL = `${hfEndpoint}/ggerganov/whisper.cpp/resolve/main/${MODEL_FILE}`
 
 async function main() {

@@ -16,8 +16,6 @@ jobs:
         platform: [macos-latest, windows-latest, ubuntu-22.04]
 
     runs-on: ${{ matrix.platform }}
-    env:
-      HF_ENDPOINT: https://hf-mirror.com
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

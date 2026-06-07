@@ -2,10 +2,9 @@ import time
 import sys
 import os
 
-# Set default HF_ENDPOINT to hf-mirror.com if not already configured, 
-# ensuring GHA and other environments default to the reliable mirror.
+# Set default HF_ENDPOINT to huggingface.co if not already configured.
 if "HF_ENDPOINT" not in os.environ:
-    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
 
 from huggingface_hub import hf_hub_download
 
@@ -45,7 +44,7 @@ def main():
     os.environ["HF_XET_DISABLE"] = "1"
 
     # Set up endpoints list for fallback/rotation
-    initial_endpoint = os.environ.get("HF_ENDPOINT", "https://hf-mirror.com")
+    initial_endpoint = os.environ.get("HF_ENDPOINT", "https://huggingface.co")
     endpoints = [initial_endpoint, "https://huggingface.co", "https://hf-mirror.com"]
     # De-duplicate while preserving order
     seen = set()
