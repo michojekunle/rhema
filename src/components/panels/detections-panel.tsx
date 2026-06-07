@@ -46,13 +46,19 @@ function DetectionCard({ detection }: { detection: DetectionResult }) {
     // Set broadcast live verse
     const translation = useBibleStore.getState().translations
       .find(t => t.id === useBibleStore.getState().activeTranslationId)?.abbreviation ?? "KJV"
+    const verseToPresent = {
+      id: 0,
+      translation_id: useBibleStore.getState().activeTranslationId,
+      book_number: detection.book_number,
+      book_name: detection.book_name,
+      book_abbreviation: "",
+      chapter: detection.chapter,
+      verse: detection.verse,
+      text: detection.verse_text,
+    }
+    useBroadcastStore.getState().setLive(true)
     useBroadcastStore.getState().setLiveVerse(
-      toVerseRenderData({
-        id: 0, translation_id: useBibleStore.getState().activeTranslationId,
-        book_number: detection.book_number, book_name: detection.book_name,
-        book_abbreviation: "", chapter: detection.chapter,
-        verse: detection.verse, text: detection.verse_text,
-      }, translation)
+      toVerseRenderData(verseToPresent, translation)
     )
   }
 

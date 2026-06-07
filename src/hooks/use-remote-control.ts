@@ -177,6 +177,7 @@ async function presentQueueItem(index: number) {
       )?.abbreviation ?? "KJV"
 
     bibleState.selectVerse(verseToPresent)
+    useBroadcastStore.getState().setLive(true)
     useBroadcastStore
       .getState()
       .setLiveVerse(toVerseRenderData(verseToPresent, translation))

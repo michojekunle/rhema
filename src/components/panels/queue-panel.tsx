@@ -23,12 +23,32 @@ function QueueItemRow({
   isActive: boolean
   isHighlighted: boolean
 }) {
-  const handlePresent = () => {
+  const handlePresent = async () => {
     useQueueStore.getState().setActive(index)
-    bibleActions.selectVerse(item.verse)
+    
+    const activeTranslationId = useBibleStore.getState().activeTranslationId
+    let verseToPresent = item.verse
+    try {
+      const fullVerse = await bibleActions.fetchVerse(
+        item.verse.book_number,
+        item.verse.chapter,
+        item.verse.verse,
+        activeTranslationId
+      )
+      if (fullVerse) {
+        verseToPresent = fullVerse
+      }
+    } catch (e) {
+      console.warn("Failed to fetch verse for queue presentation:", e)
+    }
+
+    bibleActions.selectVerse(verseToPresent)
+    
     const translation = useBibleStore.getState().translations
-      .find(t => t.id === useBibleStore.getState().activeTranslationId)?.abbreviation ?? "KJV"
-    useBroadcastStore.getState().setLiveVerse(toVerseRenderData(item.verse, translation))
+      .find(t => t.id === activeTranslationId)?.abbreviation ?? "KJV"
+    
+    useBroadcastStore.getState().setLive(true)
+    useBroadcastStore.getState().setLiveVerse(toVerseRenderData(verseToPresent, translation))
   }
 
   const handleRemove = () => {
