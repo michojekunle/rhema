@@ -1,6 +1,12 @@
 import time
 import sys
 import os
+
+# Set default HF_ENDPOINT to hf-mirror.com if not already configured, 
+# ensuring GHA and other environments default to the reliable mirror.
+if "HF_ENDPOINT" not in os.environ:
+    os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+
 from huggingface_hub import hf_hub_download
 
 REPO_ID = "Qwen/Qwen3-Embedding-0.6B"
@@ -37,12 +43,22 @@ def main():
     # Disable XET protocol which stalls on large files
     os.environ["HF_HUB_DISABLE_XET"] = "1"
     os.environ["HF_XET_DISABLE"] = "1"
+
+    # Set up endpoints list for fallback/rotation
+    initial_endpoint = os.environ.get("HF_ENDPOINT", "https://hf-mirror.com")
+    endpoints = [initial_endpoint, "https://huggingface.co", "https://hf-mirror.com"]
+    # De-duplicate while preserving order
+    seen = set()
+    endpoints = [x for x in endpoints if not (x in seen or seen.add(x))]
     
     for filename in FILES:
         print(f"\n--> Downloading {filename}...")
         success = False
         
         for attempt in range(1, 16):
+            # Rotate endpoints to bypass server blockages or timeouts
+            current_endpoint = endpoints[(attempt - 1) % len(endpoints)]
+            os.environ["HF_ENDPOINT"] = current_endpoint
             try:
                 # hf_hub_download is resumable by default and uses standard cache
                 hf_hub_download(
@@ -51,10 +67,10 @@ def main():
                     repo_type="model"
                 )
                 success = True
-                print(f"[OK] Completed: {filename}")
+                print(f"[OK] Completed: {filename} (using {current_endpoint})")
                 break
             except Exception as e:
-                print(f"[WARN] Attempt {attempt}/15 failed for {filename}: {e}")
+                print(f"[WARN] Attempt {attempt}/15 failed for {filename} using {current_endpoint}: {e}")
                 print("Waiting 10 seconds before retrying...")
                 time.sleep(10)
                 

@@ -124,6 +124,7 @@ async function main() {
       HF_HUB_DOWNLOAD_TIMEOUT: "60",
       HF_HUB_DISABLE_XET: "1",
       HF_XET_DISABLE: "1",
+      HF_ENDPOINT: process.env.HF_ENDPOINT || "https://hf-mirror.com",
     }
 
     // Export FP32
@@ -206,7 +207,7 @@ async function main() {
     await run(
       [venvPython, join(DATA_DIR, "precompute-embeddings.py")],
       undefined,
-      { PYTHONUTF8: "1" }
+      { PYTHONUTF8: "1", ...hfEnv }
     )
   }
 
