@@ -81,6 +81,19 @@ async function main() {
   console.log("╚══════════════════════════════════════════════╝")
   if (force) console.log("  (--force: re-running all phases)\n")
 
+  const hfEnv = {
+    HF_HUB_DOWNLOAD_TIMEOUT: "60",
+    HF_HUB_DISABLE_XET: "1",
+    HF_XET_DISABLE: "1",
+    HF_ENDPOINT: process.env.HF_ENDPOINT || "https://huggingface.co",
+  }
+
+  const offlineEnv = {
+    ...hfEnv,
+    HF_HUB_OFFLINE: "1",
+    TRANSFORMERS_OFFLINE: "1",
+  }
+
   // ── Phase 1: Python environment ────────────────────────────────
   console.log("\n━━━ Phase 1/7: Python environment ━━━")
   await ensurePythonEnv([
@@ -120,19 +133,6 @@ async function main() {
       process.platform === "win32" ? "python" : "python3"
     )
     const optimumCli = getVenvBin("optimum-cli")
-    const hfEnv = {
-      HF_HUB_DOWNLOAD_TIMEOUT: "60",
-      HF_HUB_DISABLE_XET: "1",
-      HF_XET_DISABLE: "1",
-      HF_ENDPOINT: process.env.HF_ENDPOINT || "https://huggingface.co",
-    }
-
-    const offlineEnv = {
-      ...hfEnv,
-      HF_HUB_OFFLINE: "1",
-      TRANSFORMERS_OFFLINE: "1",
-    }
-
     // Export FP32
     if (force || !existsSync(MODEL_ONNX)) {
       console.log(
