@@ -127,6 +127,12 @@ async function main() {
       HF_ENDPOINT: process.env.HF_ENDPOINT || "https://huggingface.co",
     }
 
+    const offlineEnv = {
+      ...hfEnv,
+      HF_HUB_OFFLINE: "1",
+      TRANSFORMERS_OFFLINE: "1",
+    }
+
     // Export FP32
     if (force || !existsSync(MODEL_ONNX)) {
       console.log(
@@ -157,7 +163,7 @@ async function main() {
           MODELS_DIR,
         ],
         undefined,
-        hfEnv
+        offlineEnv
       )
       console.log(`  ✓ Model exported to ${MODELS_DIR}`)
     }
@@ -207,7 +213,7 @@ async function main() {
     await run(
       [venvPython, join(DATA_DIR, "precompute-embeddings.py")],
       undefined,
-      { PYTHONUTF8: "1", ...hfEnv }
+      { PYTHONUTF8: "1", ...offlineEnv }
     )
   }
 
