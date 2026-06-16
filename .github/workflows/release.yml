@@ -25,6 +25,17 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Mock Whisper model for CI build speed
+        run: |
+          mkdir -p models/whisper
+          touch models/whisper/ggml-large-v3-turbo-q8_0.bin
+        shell: bash
+
       - name: Install LLVM and Clang (for Whisper bindings)
         uses: KyleMayes/install-llvm-action@v2
         with:
