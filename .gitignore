@@ -53,3 +53,6 @@ ghs.json
 
 # GSD planning artifacts
 .planning/
+
+# NDI SDK backup
+sdk/ndi_backup/
