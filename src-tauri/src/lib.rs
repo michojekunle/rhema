@@ -45,6 +45,8 @@ pub fn run() {
             commands::detection::toggle_paraphrase_detection,
             commands::detection::reading_mode_status,
             commands::detection::stop_reading_mode,
+            commands::detection::check_qwen_model,
+            commands::detection::download_qwen_model,
             commands::audio::get_audio_devices,
             commands::stt::start_transcription,
             commands::stt::stop_transcription,
@@ -96,101 +98,13 @@ pub fn run() {
                 log::warn!("Bible database not found at {}", db_path.display());
             }
 
-            // Try to load ONNX embedding model and pre-computed verse index
-            // Prefer INT8 quantized model (~571MB) over FP32 (~2.4GB)
-            let base_dir = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
-            let model_path = {
-                let dev_int8 = base_dir.join("models/qwen3-embedding-0.6b-int8/model_quantized.onnx");
-                let dev_fp32 = base_dir.join("models/qwen3-embedding-0.6b/model.onnx");
-                let prod_int8 = app.path().resource_dir().map(|p| p.join("_up_/models/qwen3-embedding-0.6b-int8/model_quantized.onnx")).ok();
-                let prod_fp32 = app.path().resource_dir().map(|p| p.join("_up_/models/qwen3-embedding-0.6b/model.onnx")).ok();
-
-                if dev_int8.exists() {
-                    log::info!("Using INT8 quantized ONNX model (dev)");
-                    dev_int8
-                } else if dev_fp32.exists() {
-                    log::info!("Using FP32 ONNX model (dev)");
-                    dev_fp32
-                } else if prod_int8.as_ref().map_or(false, |p| p.exists()) {
-                    log::info!("Using INT8 quantized ONNX model (prod)");
-                    prod_int8.unwrap()
-                } else if prod_fp32.as_ref().map_or(false, |p| p.exists()) {
-                    log::info!("Using FP32 ONNX model (prod)");
-                    prod_fp32.unwrap()
-                } else {
-                    dev_fp32
+            // Load ONNX embedding model and pre-computed verse index
+            {
+                let managed_pipeline = app.state::<Mutex<rhema_detection::DetectionPipeline>>();
+                let mut pipeline = managed_pipeline.lock().unwrap();
+                if let Err(e) = commands::detection::load_qwen_model_into_pipeline(app.handle(), &mut pipeline) {
+                    log::warn!("Could not load Qwen model during setup (it may not be downloaded yet): {e}");
                 }
-            };
-            let tokenizer_path = {
-                let dev = base_dir.join("models/qwen3-embedding-0.6b/tokenizer.json");
-                let prod = app.path().resource_dir().map(|p| p.join("_up_/models/qwen3-embedding-0.6b/tokenizer.json")).ok();
-                if dev.exists() {
-                    dev
-                } else if prod.as_ref().map_or(false, |p| p.exists()) {
-                    prod.unwrap()
-                } else {
-                    dev
-                }
-            };
-            let embeddings_path = {
-                let dev = base_dir.join("embeddings/kjv-qwen3-0.6b.bin");
-                let prod = app.path().resource_dir().map(|p| p.join("_up_/embeddings/kjv-qwen3-0.6b.bin")).ok();
-                if dev.exists() {
-                    dev
-                } else if prod.as_ref().map_or(false, |p| p.exists()) {
-                    prod.unwrap()
-                } else {
-                    dev
-                }
-            };
-            let ids_path = {
-                let dev = base_dir.join("embeddings/kjv-qwen3-0.6b-ids.bin");
-                let prod = app.path().resource_dir().map(|p| p.join("_up_/embeddings/kjv-qwen3-0.6b-ids.bin")).ok();
-                if dev.exists() {
-                    dev
-                } else if prod.as_ref().map_or(false, |p| p.exists()) {
-                    prod.unwrap()
-                } else {
-                    dev
-                }
-            };
-
-            if model_path.exists() && tokenizer_path.exists() {
-                use rhema_detection::semantic::embedder::TextEmbedder;
-                use rhema_detection::semantic::index::VectorIndex;
-                match rhema_detection::OnnxEmbedder::load(&model_path, &tokenizer_path) {
-                    Ok(embedder) => {
-                        log::info!("ONNX embedding model loaded");
-                        let managed_pipeline = app.state::<Mutex<rhema_detection::DetectionPipeline>>();
-                        let mut pipeline = managed_pipeline.lock().unwrap();
-
-                        // If pre-computed embeddings exist, load the vector index
-                        if embeddings_path.exists() && ids_path.exists() {
-                            let dim = embedder.dimension();
-                            match rhema_detection::HnswVectorIndex::load(&embeddings_path, &ids_path, dim) {
-                                Ok(index) => {
-                                    log::info!("Verse embeddings loaded ({} vectors)", index.len());
-                                    pipeline.set_semantic(
-                                        rhema_detection::SemanticDetector::new(
-                                            Box::new(embedder),
-                                            Box::new(index),
-                                        ),
-                                    );
-                                }
-                                Err(e) => {
-                                    log::warn!("Failed to load verse embeddings: {e}");
-                                }
-                            }
-                        } else {
-                            log::info!("No pre-computed verse embeddings found. Run 'bun run export:verses' then the precompute binary.");
-                        }
-                    }
-                    Err(e) => {
-                        log::warn!("Failed to load ONNX model: {e}");
-                    }
-                }
-            } else {
-                log::info!("ONNX model not found. Semantic search disabled. Run 'bun run download:model' to download.");
             }
 
             Ok(())

@@ -644,6 +644,20 @@ function BibleSection() {
   const [activeId, setActiveId] = useState<number>(1)
   const [loading, setLoading] = useState(true)
 
+  const [qwenModelExists, setQwenModelExists] = useState<boolean | null>(null)
+  const [qwenDownloading, setQwenDownloading] = useState(false)
+  const [qwenDownloadProgress, setQwenDownloadProgress] = useState(0)
+
+  const checkQwenModel = useCallback(async () => {
+    try {
+      const exists = await invoke<boolean>("check_qwen_model")
+      setQwenModelExists(exists)
+    } catch (e) {
+      console.error("Failed to check Qwen model existence:", e)
+      setQwenModelExists(false)
+    }
+  }, [])
+
   useEffect(() => {
     async function load() {
       try {
@@ -660,7 +674,50 @@ function BibleSection() {
       }
     }
     load()
-  }, [])
+    checkQwenModel()
+  }, [checkQwenModel])
+
+  useEffect(() => {
+    let unlistenProgress: (() => void) | null = null
+    let unlistenComplete: (() => void) | null = null
+
+    async function setupListeners() {
+      const { listen } = await import("@tauri-apps/api/event")
+
+      unlistenProgress = await listen<{ percentage: number }>(
+        "qwen_download_progress",
+        (event) => {
+          setQwenDownloadProgress(Math.round(event.payload.percentage))
+        }
+      )
+
+      unlistenComplete = await listen("qwen_download_complete", () => {
+        setQwenDownloading(false)
+        setQwenDownloadProgress(0)
+        checkQwenModel()
+      })
+    }
+
+    if (qwenDownloading) {
+      setupListeners()
+    }
+
+    return () => {
+      if (unlistenProgress) unlistenProgress()
+      if (unlistenComplete) unlistenComplete()
+    }
+  }, [qwenDownloading, checkQwenModel])
+
+  const handleDownloadQwenModel = async () => {
+    setQwenDownloading(true)
+    setQwenDownloadProgress(0)
+    try {
+      await invoke("download_qwen_model")
+    } catch (e) {
+      console.error("Failed to download Qwen model:", e)
+      setQwenDownloading(false)
+    }
+  }
 
   const handleChange = async (value: string) => {
     const id = parseInt(value)
@@ -726,6 +783,59 @@ function BibleSection() {
           {translations.length > 0 &&
             ` ${translations.length} translations available.`}
         </p>
+      </div>
+
+      {/* Semantic/Concept Search Model status */}
+      <div className="flex flex-col gap-4 rounded-lg border border-border/50 bg-muted/20 p-3 mt-2">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+            Semantic Search Model
+          </label>
+          <p className="text-[0.625rem] leading-relaxed text-muted-foreground">
+            The Qwen3-Embedding-0.6B model (~570MB) enables searching by meaning (e.g., searching for "peace" returns verses about calm, quiet, or reconciliation even without using the exact word).
+          </p>
+        </div>
+
+        {/* Model Status & Action */}
+        <div className="flex items-center justify-between gap-3 border-t border-border/30 pt-1">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[0.625rem] font-medium text-foreground">
+              Status
+            </span>
+            <span className="text-[0.625rem] text-muted-foreground">
+              {qwenModelExists === null ? (
+                "Checking status..."
+              ) : qwenModelExists ? (
+                <span className="flex items-center gap-1 font-medium text-emerald-500">
+                  <CheckIcon className="size-3" /> Ready (Semantic Search Enabled)
+                </span>
+              ) : qwenDownloading ? (
+                `Downloading... ${qwenDownloadProgress}%`
+              ) : (
+                "Not downloaded (Semantic search is disabled)"
+              )}
+            </span>
+          </div>
+
+          {qwenModelExists === false && !qwenDownloading && (
+            <Button
+              size="sm"
+              className="h-7 text-[0.625rem]"
+              onClick={handleDownloadQwenModel}
+            >
+              Download Model
+            </Button>
+          )}
+        </div>
+
+        {qwenDownloading && (
+          <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full bg-primary transition-all duration-150"
+              style={{ width: `${qwenDownloadProgress}%` }}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
