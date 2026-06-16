@@ -1,4 +1,4 @@
-export type Faq = { question: string; answer: string };
+export type Faq = { question: string; answer: string }
 
 export const FAQS: readonly Faq[] = [
   {
@@ -51,4 +51,4 @@ export const FAQS: readonly Faq[] = [
     answer:
       "Yes. Rhema outputs broadcast-ready overlays via NDI, which integrates natively with OBS Studio, vMix, and other professional live production software.",
   },
-];
+]

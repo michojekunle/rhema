@@ -14,15 +14,16 @@ function uint8ToBase64(bytes: Uint8Array | Uint8ClampedArray): string {
     parts.push(
       String.fromCharCode.apply(
         null,
-        bytes.subarray(i, i + CHUNK) as unknown as number[],
-      ),
+        bytes.subarray(i, i + CHUNK) as unknown as number[]
+      )
     )
   }
   return btoa(parts.join(""))
 }
 
 /** Read output ID from URL query param (?output=main or ?output=alt). Defaults to "main". */
-const OUTPUT_ID = new URLSearchParams(window.location.search).get("output") ?? "main"
+const OUTPUT_ID =
+  new URLSearchParams(window.location.search).get("output") ?? "main"
 
 interface BroadcastPayload {
   theme: BroadcastTheme
@@ -80,25 +81,30 @@ function BroadcastCanvas() {
     }
   }, [logDebug])
 
-  const preloadBackgroundImage = useCallback((theme: BroadcastTheme) => {
-    const bg = theme.background
-    if (bg.type !== "image" || !bg.image?.url) return
+  const preloadBackgroundImage = useCallback(
+    (theme: BroadcastTheme) => {
+      const bg = theme.background
+      if (bg.type !== "image" || !bg.image?.url) return
 
-    const url = bg.image.url
-    const cache = imageCacheRef.current
-    if (cache.has(url)) return
+      const url = bg.image.url
+      const cache = imageCacheRef.current
+      if (cache.has(url)) return
 
-    const img = new Image()
-    img.onload = () => {
-      cache.set(url, img)
-      logDebug("Background image loaded", { url })
-      draw()
-    }
-    img.onerror = () => {
-      console.warn("[broadcast-output] failed to load background image", { url })
-    }
-    img.src = url
-  }, [draw, logDebug])
+      const img = new Image()
+      img.onload = () => {
+        cache.set(url, img)
+        logDebug("Background image loaded", { url })
+        draw()
+      }
+      img.onerror = () => {
+        console.warn("[broadcast-output] failed to load background image", {
+          url,
+        })
+      }
+      img.src = url
+    },
+    [draw, logDebug]
+  )
 
   const pushNdiFrame = useCallback(async () => {
     if (!ndiConfigRef.current.active) return
@@ -119,7 +125,8 @@ function BroadcastCanvas() {
       let sourceHeight = canvas.height
 
       if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
-        const ndiCanvas = ndiCanvasRef.current ?? document.createElement("canvas")
+        const ndiCanvas =
+          ndiCanvasRef.current ?? document.createElement("canvas")
         ndiCanvas.width = targetWidth
         ndiCanvas.height = targetHeight
         const ndiCtx = ndiCanvas.getContext("2d")
@@ -172,27 +179,38 @@ function BroadcastCanvas() {
 
     const currentWindow = getCurrentWebviewWindow()
     logDebug("Listener registration started", { label: currentWindow.label })
-    const unlisten = currentWindow.listen<BroadcastPayload>("broadcast:verse-update", (event) => {
-      latestData.current = event.payload
-      preloadBackgroundImage(event.payload.theme)
-      logDebug("Received broadcast:verse-update", {
-        hasVerse: Boolean(event.payload.verse),
-        themeId: event.payload.theme.id,
-      })
-      draw()
-      pushNdiBurst()
-    })
+    const unlisten = currentWindow.listen<BroadcastPayload>(
+      "broadcast:verse-update",
+      (event) => {
+        latestData.current = event.payload
+        preloadBackgroundImage(event.payload.theme)
+        logDebug("Received broadcast:verse-update", {
+          hasVerse: Boolean(event.payload.verse),
+          themeId: event.payload.theme.id,
+        })
+        draw()
+        pushNdiBurst()
+      }
+    )
 
-    const unlistenNdiConfig = currentWindow.listen<NdiConfigEventPayload>("broadcast:ndi-config", (event) => {
-      ndiConfigRef.current = event.payload
-      logDebug("Received broadcast:ndi-config", event.payload)
-      // Push burst when NDI becomes active
-      if (event.payload.active) pushNdiBurst()
-    })
+    const unlistenNdiConfig = currentWindow.listen<NdiConfigEventPayload>(
+      "broadcast:ndi-config",
+      (event) => {
+        ndiConfigRef.current = event.payload
+        logDebug("Received broadcast:ndi-config", event.payload)
+        // Push burst when NDI becomes active
+        if (event.payload.active) pushNdiBurst()
+      }
+    )
 
     // Request current NDI status on mount (fixes race condition
     // where NDI is started before this window opens)
-    void invoke<{ active: boolean; width: number; height: number; fps: number } | null>("get_ndi_status", { outputId: OUTPUT_ID })
+    void invoke<{
+      active: boolean
+      width: number
+      height: number
+      fps: number
+    } | null>("get_ndi_status", { outputId: OUTPUT_ID })
       .then((status) => {
         if (status && status.active) {
           ndiConfigRef.current = {
@@ -208,11 +226,14 @@ function BroadcastCanvas() {
         // Command may not exist yet
       })
 
-    void currentWindow.emitTo("main", "broadcast:output-ready").then(() => {
-      logDebug("Sent broadcast:output-ready")
-    }).catch(() => {
-      console.warn("[broadcast-output] failed to send output-ready event")
-    })
+    void currentWindow
+      .emitTo("main", "broadcast:output-ready")
+      .then(() => {
+        logDebug("Sent broadcast:output-ready")
+      })
+      .catch(() => {
+        console.warn("[broadcast-output] failed to send output-ready event")
+      })
 
     return () => {
       unlisten.then((fn) => fn())

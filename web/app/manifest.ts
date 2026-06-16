@@ -1,7 +1,7 @@
-import type { MetadataRoute } from "next";
-import { SITE } from "./_lib/site";
+import type { MetadataRoute } from "next"
+import { SITE } from "./_lib/site"
 
-export const dynamic = "force-static";
+export const dynamic = "force-static"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -20,5 +20,5 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "any",
       },
     ],
-  };
+  }
 }

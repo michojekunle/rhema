@@ -8,15 +8,28 @@ import { useQueueStore, useBroadcastStore, useBibleStore } from "@/stores"
 import { toVerseRenderData } from "@/hooks/use-broadcast"
 import type { DetectionResult } from "@/types"
 
-const SOURCE_COLORS: Record<string, { bg: string; text: string; label: string }> = {
+const SOURCE_COLORS: Record<
+  string,
+  { bg: string; text: string; label: string }
+> = {
   direct: { bg: "bg-green-500/15", text: "text-green-600", label: "Direct" },
-  semantic: { bg: "bg-indigo-500/15", text: "text-indigo-300", label: "Semantic" },
+  semantic: {
+    bg: "bg-indigo-500/15",
+    text: "text-indigo-300",
+    label: "Semantic",
+  },
 }
 
 function SourceBadge({ source }: { source: string }) {
-  const style = SOURCE_COLORS[source] ?? { bg: "bg-muted", text: "text-muted-foreground", label: source }
+  const style = SOURCE_COLORS[source] ?? {
+    bg: "bg-muted",
+    text: "text-muted-foreground",
+    label: source,
+  }
   return (
-    <span className={`rounded px-1.5 py-0.5 text-[0.5625rem] font-medium uppercase tracking-wider ${style.bg} ${style.text}`}>
+    <span
+      className={`rounded px-1.5 py-0.5 text-[0.5625rem] font-medium tracking-wider uppercase ${style.bg} ${style.text}`}
+    >
       {style.label}
     </span>
   )
@@ -44,8 +57,12 @@ function DetectionCard({ detection }: { detection: DetectionResult }) {
       )
     }
     // Set broadcast live verse
-    const translation = useBibleStore.getState().translations
-      .find(t => t.id === useBibleStore.getState().activeTranslationId)?.abbreviation ?? "KJV"
+    const translation =
+      useBibleStore
+        .getState()
+        .translations.find(
+          (t) => t.id === useBibleStore.getState().activeTranslationId
+        )?.abbreviation ?? "KJV"
     const verseToPresent = {
       id: 0,
       translation_id: useBibleStore.getState().activeTranslationId,
@@ -57,9 +74,9 @@ function DetectionCard({ detection }: { detection: DetectionResult }) {
       text: detection.verse_text,
     }
     useBroadcastStore.getState().setLive(true)
-    useBroadcastStore.getState().setLiveVerse(
-      toVerseRenderData(verseToPresent, translation)
-    )
+    useBroadcastStore
+      .getState()
+      .setLiveVerse(toVerseRenderData(verseToPresent, translation))
   }
 
   return (
@@ -102,7 +119,8 @@ function DetectionCard({ detection }: { detection: DetectionResult }) {
               },
               reference: detection.verse_ref,
               confidence: detection.confidence,
-              source: detection.source === "direct" ? "ai-direct" : "ai-semantic",
+              source:
+                detection.source === "direct" ? "ai-direct" : "ai-semantic",
               added_at: Date.now(),
             })
           }}
@@ -140,7 +158,10 @@ export function DetectionsPanel() {
             </p>
           )}
           {detections.map((detection, i) => (
-            <DetectionCard key={`${detection.verse_ref}-${i}`} detection={detection} />
+            <DetectionCard
+              key={`${detection.verse_ref}-${i}`}
+              detection={detection}
+            />
           ))}
         </div>
       </div>

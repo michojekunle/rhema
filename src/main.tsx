@@ -18,7 +18,13 @@ import { hydrateBroadcastThemes } from "@/stores/broadcast-store"
 // bible store so the UI reflects the user's choices immediately.
 invoke("stop_transcription")
   .catch(() => {})
-  .then(() => Promise.all([hydrateSettings(), hydrateBibleStore(), hydrateBroadcastThemes()]))
+  .then(() =>
+    Promise.all([
+      hydrateSettings(),
+      hydrateBibleStore(),
+      hydrateBroadcastThemes(),
+    ])
+  )
   .then(() => initBiblePersistence())
   .finally(() => {
     createRoot(document.getElementById("root")!).render(

@@ -21,13 +21,11 @@ function PanelHeader({
       )}
       {...props}
     >
-      <span className="flex items-center gap-2 text-[0.6875rem] font-medium uppercase tracking-wider text-muted-foreground">
+      <span className="flex items-center gap-2 text-[0.6875rem] font-medium tracking-wider text-muted-foreground uppercase">
         {icon}
         {title}
       </span>
-      {children && (
-        <div className="flex items-center gap-1">{children}</div>
-      )}
+      {children && <div className="flex items-center gap-1">{children}</div>}
     </div>
   )
 }

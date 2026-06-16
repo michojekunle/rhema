@@ -1,8 +1,8 @@
-import { Container } from "../ui/container";
-import { Reveal } from "../ui/reveal";
-import { SectionHeading } from "./section-heading";
-import { cn } from "../../_lib/utils";
-import { FAQS } from "./faq-section.data";
+import { Container } from "../ui/container"
+import { Reveal } from "../ui/reveal"
+import { SectionHeading } from "./section-heading"
+import { cn } from "../../_lib/utils"
+import { FAQS } from "./faq-section.data"
 
 export function FaqSection() {
   return (
@@ -16,13 +16,17 @@ export function FaqSection() {
           <SectionHeading id="faq-heading">Common questions</SectionHeading>
         </Reveal>
         <Reveal>
-          <dl className="flex flex-col" itemScope itemType="https://schema.org/FAQPage">
+          <dl
+            className="flex flex-col"
+            itemScope
+            itemType="https://schema.org/FAQPage"
+          >
             {FAQS.map((faq, i) => (
               <div
                 key={faq.question}
                 className={cn(
                   "flex flex-col gap-3 py-8",
-                  i > 0 && "border-t border-border-strong"
+                  i > 0 && "border-border-strong border-t"
                 )}
                 itemScope
                 itemProp="mainEntity"
@@ -30,7 +34,7 @@ export function FaqSection() {
               >
                 <dt
                   itemProp="name"
-                  className="text-xl font-medium leading-8 tracking-[-0.02em] text-foreground md:text-2xl md:tracking-[-0.04em]"
+                  className="text-xl leading-8 font-medium tracking-[-0.02em] text-foreground md:text-2xl md:tracking-[-0.04em]"
                 >
                   {faq.question}
                 </dt>
@@ -48,5 +52,5 @@ export function FaqSection() {
         </Reveal>
       </Container>
     </section>
-  );
+  )
 }

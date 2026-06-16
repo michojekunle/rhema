@@ -1,11 +1,11 @@
-import type { Metadata, Viewport } from "next";
-import { RootProvider } from "fumadocs-ui/provider/next";
-import "./globals.css";
-import { SITE } from "./_lib/site";
-import { StructuredData } from "./_components/seo/structured-data";
+import type { Metadata, Viewport } from "next"
+import { RootProvider } from "fumadocs-ui/provider/next"
+import "./globals.css"
+import { SITE } from "./_lib/site"
+import { StructuredData } from "./_components/seo/structured-data"
 
-const TITLE = `${SITE.name} — AI Bible verse detection for live sermons`;
-const OG_TITLE = `${SITE.name} — ${SITE.tagline}`;
+const TITLE = `${SITE.name} — AI Bible verse detection for live sermons`
+const OG_TITLE = `${SITE.name} — ${SITE.tagline}`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -75,14 +75,14 @@ export const metadata: Metadata = {
   // icon and apple-icon are wired automatically from app/icon.svg and
   // app/apple-icon.tsx — overriding here would suppress Next.js's defaults.
   manifest: "/manifest.webmanifest",
-};
+}
 
 export const viewport: Viewport = {
   themeColor: "#000000",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
-};
+}
 
 export default function RootLayout({
   children,
@@ -115,5 +115,5 @@ export default function RootLayout({
         </RootProvider>
       </body>
     </html>
-  );
+  )
 }

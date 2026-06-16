@@ -1,8 +1,8 @@
-import { Button } from "../ui/button";
-import { Container } from "../ui/container";
-import { Reveal } from "../ui/reveal";
-import { SectionHeading } from "./section-heading";
-import { SITE } from "../../_lib/site";
+import { Button } from "../ui/button"
+import { Container } from "../ui/container"
+import { Reveal } from "../ui/reveal"
+import { SectionHeading } from "./section-heading"
+import { SITE } from "../../_lib/site"
 
 const TESTIMONIALS = [
   {
@@ -19,8 +19,7 @@ const TESTIMONIALS = [
     handle: "@ose_jay1",
   },
   {
-    quote:
-      "Sweet work. Will give this a try this Sunday and give feedback",
+    quote: "Sweet work. Will give this a try this Sunday and give feedback",
     handle: "@madebydayo",
   },
   {
@@ -31,7 +30,7 @@ const TESTIMONIALS = [
     quote: "This is good for real, I’ll set it up for my church",
     handle: "@Sammichike",
   },
-] as const;
+] as const
 
 export function TestimonialsSection() {
   return (
@@ -45,11 +44,11 @@ export function TestimonialsSection() {
             Hear what people are saying!
           </SectionHeading>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 md:[&>*]:-ml-px md:[&>*]:-mt-px lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:[&>*]:-mt-px md:[&>*]:-ml-px">
           {TESTIMONIALS.map((t, i) => (
             <Reveal key={t.handle} delay={(i % 3) * 80} className="flex">
-              <figure className="flex h-full w-full flex-col justify-between gap-8 border border-border-strong p-8">
-                <blockquote className="text-xl font-medium leading-8 tracking-[-0.02em] text-foreground md:text-2xl md:tracking-[-0.04em]">
+              <figure className="border-border-strong flex h-full w-full flex-col justify-between gap-8 border p-8">
+                <blockquote className="text-xl leading-8 font-medium tracking-[-0.02em] text-foreground md:text-2xl md:tracking-[-0.04em]">
                   {t.quote}
                 </blockquote>
                 <figcaption className="text-[17px] leading-6 tracking-[-0.01em] text-muted-foreground">
@@ -66,5 +65,5 @@ export function TestimonialsSection() {
         </Reveal>
       </Container>
     </section>
-  );
+  )
 }

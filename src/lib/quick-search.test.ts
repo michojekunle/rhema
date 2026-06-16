@@ -10,14 +10,70 @@ import {
 
 // Mock book data
 const mockBooks: Book[] = [
-  { id: 1, translation_id: 1, book_number: 1, name: "Genesis", abbreviation: "Gen", testament: "OT" },
-  { id: 43, translation_id: 1, book_number: 43, name: "John", abbreviation: "John", testament: "NT" },
-  { id: 62, translation_id: 1, book_number: 62, name: "I John", abbreviation: "1John", testament: "NT" },
-  { id: 63, translation_id: 1, book_number: 63, name: "II John", abbreviation: "2John", testament: "NT" },
-  { id: 64, translation_id: 1, book_number: 64, name: "III John", abbreviation: "3John", testament: "NT" },
-  { id: 45, translation_id: 1, book_number: 45, name: "Romans", abbreviation: "Rom", testament: "NT" },
-  { id: 19, translation_id: 1, book_number: 19, name: "Psalms", abbreviation: "Ps", testament: "OT" },
-  { id: 46, translation_id: 1, book_number: 46, name: "I Corinthians", abbreviation: "1Cor", testament: "NT" },
+  {
+    id: 1,
+    translation_id: 1,
+    book_number: 1,
+    name: "Genesis",
+    abbreviation: "Gen",
+    testament: "OT",
+  },
+  {
+    id: 43,
+    translation_id: 1,
+    book_number: 43,
+    name: "John",
+    abbreviation: "John",
+    testament: "NT",
+  },
+  {
+    id: 62,
+    translation_id: 1,
+    book_number: 62,
+    name: "I John",
+    abbreviation: "1John",
+    testament: "NT",
+  },
+  {
+    id: 63,
+    translation_id: 1,
+    book_number: 63,
+    name: "II John",
+    abbreviation: "2John",
+    testament: "NT",
+  },
+  {
+    id: 64,
+    translation_id: 1,
+    book_number: 64,
+    name: "III John",
+    abbreviation: "3John",
+    testament: "NT",
+  },
+  {
+    id: 45,
+    translation_id: 1,
+    book_number: 45,
+    name: "Romans",
+    abbreviation: "Rom",
+    testament: "NT",
+  },
+  {
+    id: 19,
+    translation_id: 1,
+    book_number: 19,
+    name: "Psalms",
+    abbreviation: "Ps",
+    testament: "OT",
+  },
+  {
+    id: 46,
+    translation_id: 1,
+    book_number: 46,
+    name: "I Corinthians",
+    abbreviation: "1Cor",
+    testament: "NT",
+  },
 ]
 
 describe("numberToRoman", () => {

@@ -1,6 +1,6 @@
-import { Container } from "../ui/container";
-import { Reveal } from "../ui/reveal";
-import { SectionHeading } from "./section-heading";
+import { Container } from "../ui/container"
+import { Reveal } from "../ui/reveal"
+import { SectionHeading } from "./section-heading"
 
 const STEPS = [
   {
@@ -18,7 +18,7 @@ const STEPS = [
     title: "Start your service",
     body: "Verses appear automatically",
   },
-] as const;
+] as const
 
 export function QuickStartSection() {
   return (
@@ -36,15 +36,15 @@ export function QuickStartSection() {
             Ready in under five minutes.
           </SectionHeading>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 md:[&>*]:-ml-px md:[&>*]:-mt-px">
+        <div className="grid grid-cols-1 md:grid-cols-3 md:[&>*]:-mt-px md:[&>*]:-ml-px">
           {STEPS.map((s, i) => (
             <Reveal key={s.no} delay={i * 80} className="flex">
-              <div className="flex h-full w-full min-h-[320px] flex-col justify-between gap-8 border border-border-strong p-8 md:min-h-[400px]">
-                <p className="text-2xl font-medium leading-8 tracking-[-0.04em] text-foreground">
+              <div className="border-border-strong flex h-full min-h-[320px] w-full flex-col justify-between gap-8 border p-8 md:min-h-[400px]">
+                <p className="text-2xl leading-8 font-medium tracking-[-0.04em] text-foreground">
                   {s.no}
                 </p>
                 <div className="flex flex-col gap-2">
-                  <p className="text-2xl font-medium leading-8 tracking-[-0.04em] text-foreground">
+                  <p className="text-2xl leading-8 font-medium tracking-[-0.04em] text-foreground">
                     {s.title}
                   </p>
                   <p className="text-lg leading-6 tracking-[-0.01em] text-muted-foreground">
@@ -57,5 +57,5 @@ export function QuickStartSection() {
         </div>
       </Container>
     </section>
-  );
+  )
 }

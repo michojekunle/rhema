@@ -6,8 +6,18 @@ export type {
 } from "./transcript"
 export type { Translation, Book, Verse, CrossReference } from "./bible"
 export type { QueueItem } from "./queue"
-export type { DetectionResult, DetectionStatus, ReadingAdvance, SemanticSearchResult } from "./detection"
-export type { BroadcastTheme, VerseRenderData, VerseSegment, RenderOptions } from "./broadcast"
+export type {
+  DetectionResult,
+  DetectionStatus,
+  ReadingAdvance,
+  SemanticSearchResult,
+} from "./detection"
+export type {
+  BroadcastTheme,
+  VerseRenderData,
+  VerseSegment,
+  RenderOptions,
+} from "./broadcast"
 export type {
   NdiAlphaMode,
   NdiConfigEventPayload,

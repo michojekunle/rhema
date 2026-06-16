@@ -29,19 +29,26 @@ async function main() {
   console.log(`Destination: ${MODEL_PATH}`)
 
   const tempPath = MODEL_PATH + ".tmp"
-  
-  const proc = Bun.spawn([
-    "curl",
-    "-L",
-    "-C", "-",
-    "--retry", "10",
-    "--retry-delay", "5",
-    "-o", tempPath,
-    MODEL_URL
-  ], {
-    stdout: "inherit",
-    stderr: "inherit",
-  })
+
+  const proc = Bun.spawn(
+    [
+      "curl",
+      "-L",
+      "-C",
+      "-",
+      "--retry",
+      "10",
+      "--retry-delay",
+      "5",
+      "-o",
+      tempPath,
+      MODEL_URL,
+    ],
+    {
+      stdout: "inherit",
+      stderr: "inherit",
+    }
+  )
 
   const exitCode = await proc.exited
   if (exitCode !== 0) {

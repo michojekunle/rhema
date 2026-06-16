@@ -1,10 +1,10 @@
-import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
-import { Container } from "../ui/container";
-import { Reveal } from "../ui/reveal";
-import { SectionHeading } from "./section-heading";
+import { IconCircleCheck, IconCircleX } from "@tabler/icons-react"
+import { Container } from "../ui/container"
+import { Reveal } from "../ui/reveal"
+import { SectionHeading } from "./section-heading"
 
-const WITHOUT = ["Manual verse typing", "Delays", "Missed references"];
-const WITH = ["Automatic detection", "Instant display", "Smooth live flow"];
+const WITHOUT = ["Manual verse typing", "Delays", "Missed references"]
+const WITH = ["Automatic detection", "Instant display", "Smooth live flow"]
 
 export function ComparisonSection() {
   return (
@@ -16,7 +16,7 @@ export function ComparisonSection() {
         <Reveal>
           <SectionHeading id="comparison-heading">Why Rhema</SectionHeading>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 md:[&>*]:-ml-px md:[&>*]:-mt-px">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:[&>*]:-mt-px md:[&>*]:-ml-px">
           <Reveal className="flex">
             <ComparisonCard
               title="Without Rhema"
@@ -30,7 +30,7 @@ export function ComparisonSection() {
         </div>
       </Container>
     </section>
-  );
+  )
 }
 
 function ComparisonCard({
@@ -38,16 +38,15 @@ function ComparisonCard({
   items,
   tone,
 }: {
-  title: string;
-  items: readonly string[];
-  tone: "positive" | "negative";
+  title: string
+  items: readonly string[]
+  tone: "positive" | "negative"
 }) {
-  const Icon = tone === "positive" ? IconCircleCheck : IconCircleX;
-  const iconColor =
-    tone === "positive" ? "text-emerald-500" : "text-red-500";
+  const Icon = tone === "positive" ? IconCircleCheck : IconCircleX
+  const iconColor = tone === "positive" ? "text-emerald-500" : "text-red-500"
   return (
-    <div className="flex h-full w-full flex-col gap-2 border border-border-strong p-8 opacity-90">
-      <h3 className="text-lg font-medium leading-6 tracking-[-0.01em] text-foreground">
+    <div className="border-border-strong flex h-full w-full flex-col gap-2 border p-8 opacity-90">
+      <h3 className="text-lg leading-6 font-medium tracking-[-0.01em] text-foreground">
         {title}
       </h3>
       <ul className="flex flex-col gap-2">
@@ -64,5 +63,5 @@ function ComparisonCard({
         ))}
       </ul>
     </div>
-  );
+  )
 }

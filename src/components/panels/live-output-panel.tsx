@@ -18,7 +18,8 @@ export function LiveOutputPanel() {
 
   const activeTheme = themes.find((t) => t.id === activeThemeId) ?? themes[0]
   const translation =
-    translations.find((t) => t.id === activeTranslationId)?.abbreviation ?? "KJV"
+    translations.find((t) => t.id === activeTranslationId)?.abbreviation ??
+    "KJV"
 
   const verseData = deriveLiveVerse({
     isLive,
@@ -42,7 +43,7 @@ export function LiveOutputPanel() {
         <label className="flex items-center gap-2">
           <span
             className={cn(
-              "text-[0.625rem] font-medium uppercase tracking-wider transition-colors",
+              "text-[0.625rem] font-medium tracking-wider uppercase transition-colors",
               isLive ? "text-emerald-400" : "text-muted-foreground"
             )}
           >

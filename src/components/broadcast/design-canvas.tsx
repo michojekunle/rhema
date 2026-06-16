@@ -17,7 +17,12 @@ const WS_WIDTH = 1920
 const WS_HEIGHT = 1080
 const DESIGNER_SAMPLE_VERSE: VerseRenderData = {
   reference: "Genesis 1:1 (KJV)",
-  segments: [{ verseNumber: 1, text: "In the beginning God created the heaven and the earth." }],
+  segments: [
+    {
+      verseNumber: 1,
+      text: "In the beginning God created the heaven and the earth.",
+    },
+  ],
 }
 
 export function DesignCanvas() {
@@ -27,7 +32,9 @@ export function DesignCanvas() {
   const latestThemeRef = useRef<BroadcastTheme | null>(null)
   const rafIdRef = useRef<number | null>(null)
   const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map())
-  const imageRequestsRef = useRef<Map<string, Promise<HTMLImageElement>>>(new Map())
+  const imageRequestsRef = useRef<Map<string, Promise<HTMLImageElement>>>(
+    new Map()
+  )
   const objectsRef = useRef<{
     workspace: fabric.Rect | null
     referenceRegion: fabric.Rect | null
@@ -68,7 +75,8 @@ export function DesignCanvas() {
     canvas.setViewportTransform(identity)
 
     // Calculate zoom to fit workspace with padding
-    const scale = fabric.util.findScaleToFit(workspace, { width: cw, height: ch }) * 0.85
+    const scale =
+      fabric.util.findScaleToFit(workspace, { width: cw, height: ch }) * 0.85
     canvas.setZoom(scale)
 
     // Center the workspace
@@ -193,7 +201,11 @@ export function DesignCanvas() {
       rafIdRef.current = null
       void canvas.dispose()
       fabricRef.current = null
-      objectsRef.current = { workspace: null, referenceRegion: null, verseRegion: null }
+      objectsRef.current = {
+        workspace: null,
+        referenceRegion: null,
+        verseRegion: null,
+      }
     }
   }, [editingThemeId, autoZoom])
 
@@ -261,15 +273,24 @@ export function DesignCanvas() {
   }, [resyncLatestTheme])
 
   const elementLabel =
-    selectedElement === "verse" ? "verse"
-      : selectedElement === "reference" ? "reference"
+    selectedElement === "verse"
+      ? "verse"
+      : selectedElement === "reference"
+        ? "reference"
         : "none"
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Toolbar */}
-      <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border/40 px-3" style={{ background: "#18181b" }}>
-        <Button variant="ghost" size="icon-xs" className="text-muted-foreground">
+      <div
+        className="flex h-14 shrink-0 items-center gap-2 border-b border-border/40 px-3"
+        style={{ background: "#18181b" }}
+      >
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground"
+        >
           <MousePointer2Icon className="size-3.5" />
         </Button>
         <div className="flex items-center gap-1.5 text-[0.625rem] text-muted-foreground">
@@ -277,19 +298,38 @@ export function DesignCanvas() {
           <span>Grid</span>
         </div>
         <div className="flex-1" />
-        <Button variant="ghost" size="icon-xs" className="text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground"
+        >
           <SearchIcon className="size-3.5" />
         </Button>
-        <span className="min-w-12 text-center text-[0.625rem] font-medium tabular-nums text-muted-foreground">
+        <span className="min-w-12 text-center text-[0.625rem] font-medium text-muted-foreground tabular-nums">
           {zoomLevel}%
         </span>
-        <Button variant="ghost" size="icon-xs" onClick={zoomOut} className="text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          onClick={zoomOut}
+          className="text-muted-foreground"
+        >
           <MinusIcon className="size-3" />
         </Button>
-        <Button variant="ghost" size="icon-xs" onClick={zoomIn} className="text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          onClick={zoomIn}
+          className="text-muted-foreground"
+        >
           <PlusIcon className="size-3" />
         </Button>
-        <Button variant="ghost" size="icon-xs" onClick={autoZoom} className="text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          onClick={autoZoom}
+          className="text-muted-foreground"
+        >
           <MaximizeIcon className="size-3.5" />
         </Button>
       </div>
@@ -298,15 +338,25 @@ export function DesignCanvas() {
       <div ref={containerRef} className="relative min-h-0 flex-1">
         <canvas ref={canvasElRef} />
         {!draftTheme && (
-          <div className="absolute inset-0 flex items-center justify-center" style={{ background: "#18181b" }}>
-            <p className="text-xs text-muted-foreground">Select a theme to begin editing</p>
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: "#18181b" }}
+          >
+            <p className="text-xs text-muted-foreground">
+              Select a theme to begin editing
+            </p>
           </div>
         )}
       </div>
 
       {/* Status bar */}
-      <div className="flex h-8 shrink-0 items-center border-t border-border/40 px-3 text-[0.5625rem] text-muted-foreground/70" style={{ background: "#18181b" }}>
-        <span>Output: {WS_WIDTH} × {WS_HEIGHT}px</span>
+      <div
+        className="flex h-8 shrink-0 items-center border-t border-border/40 px-3 text-[0.5625rem] text-muted-foreground/70"
+        style={{ background: "#18181b" }}
+      >
+        <span>
+          Output: {WS_WIDTH} × {WS_HEIGHT}px
+        </span>
         <span className="mx-2">·</span>
         <span>Zoom: {zoomLevel}%</span>
         <span className="mx-2">·</span>
@@ -314,7 +364,10 @@ export function DesignCanvas() {
         <span className="mx-2">·</span>
         <span>
           {selectedElement ? (
-            <>Editing: <span className="font-medium text-primary">{elementLabel}</span></>
+            <>
+              Editing:{" "}
+              <span className="font-medium text-primary">{elementLabel}</span>
+            </>
           ) : (
             "Click frame to select"
           )}
@@ -370,8 +423,14 @@ async function syncThemeToCanvas(
   ws.setCoords()
   const wsTopLeft = ws.getPointByOrigin("left", "top")
   const tightenedRects = tightenTextHitRects(referenceRect, verseRect, theme)
-  const mappedReferenceRect = mapLocalRectToWorkspaceRect(tightenedRects.referenceRect, wsTopLeft)
-  const mappedVerseRect = mapLocalRectToWorkspaceRect(tightenedRects.verseRect, wsTopLeft)
+  const mappedReferenceRect = mapLocalRectToWorkspaceRect(
+    tightenedRects.referenceRect,
+    wsTopLeft
+  )
+  const mappedVerseRect = mapLocalRectToWorkspaceRect(
+    tightenedRects.verseRect,
+    wsTopLeft
+  )
 
   refRegion.set({
     originX: "left",
@@ -431,7 +490,8 @@ function tightenTextHitRects(
 ) {
   const refFont = Math.max(1, theme.reference.fontSize)
   const verseFont = Math.max(1, theme.verseText.fontSize)
-  const verseExtraLeading = Math.max(0, theme.verseText.lineHeight - 1) * verseFont
+  const verseExtraLeading =
+    Math.max(0, theme.verseText.lineHeight - 1) * verseFont
   const referenceGap = Math.max(0, theme.layout.referenceGap ?? 0)
   const refPadX = Math.max(6, refFont * 0.25)
   const refPadTop = Math.max(2, refFont * 0.2)
@@ -442,13 +502,19 @@ function tightenTextHitRects(
     x: referenceRect.x - refPadX,
     y: referenceRect.y + refFont * 0.22 - refPadTop,
     width: referenceRect.width + refPadX * 2,
-    height: Math.max(refFont * 1.05, referenceRect.height - refFont * 0.42) + refPadTop + refPadBottom,
+    height:
+      Math.max(refFont * 1.05, referenceRect.height - refFont * 0.42) +
+      refPadTop +
+      refPadBottom,
   }
   const verseTight = {
     x: verseRect.x,
     y: verseRect.y + verseFont * 0.12,
     width: verseRect.width,
-    height: Math.max(verseFont, verseRect.height - verseExtraLeading - verseFont * 0.1),
+    height: Math.max(
+      verseFont,
+      verseRect.height - verseExtraLeading - verseFont * 0.1
+    ),
   }
 
   if (theme.reference.position === "above") {
@@ -483,7 +549,10 @@ function ensureImage(
       return img
     })
     .catch((error) => {
-      console.warn("[theme-designer] failed to load background image", { url: url.slice(0, 100), error })
+      console.warn("[theme-designer] failed to load background image", {
+        url: url.slice(0, 100),
+        error,
+      })
       throw error
     })
     .finally(() => {

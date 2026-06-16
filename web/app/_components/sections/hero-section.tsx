@@ -1,8 +1,8 @@
-import { IconBrandGithub } from "@tabler/icons-react";
-import { Button } from "../ui/button";
-import { Container } from "../ui/container";
-import { DownloadButton } from "../ui/download-button";
-import { SITE } from "../../_lib/site";
+import { IconBrandGithub } from "@tabler/icons-react"
+import { Button } from "../ui/button"
+import { Container } from "../ui/container"
+import { DownloadButton } from "../ui/download-button"
+import { SITE } from "../../_lib/site"
 
 export function HeroSection({ stars }: { stars: number }) {
   return (
@@ -17,11 +17,11 @@ export function HeroSection({ stars }: { stars: number }) {
         className="relative flex flex-col items-center gap-12 py-20 text-center md:py-24 lg:py-28"
       >
         <div className="flex max-w-[830px] flex-col items-center gap-6">
-          <h1 className="text-balance font-medium tracking-[-0.035em] text-foreground text-[44px] leading-[1.05] sm:text-[56px] md:text-[72px] lg:text-[84px] lg:tracking-[-0.05em]">
+          <h1 className="text-[44px] leading-[1.05] font-medium tracking-[-0.035em] text-balance text-foreground sm:text-[56px] md:text-[72px] lg:text-[84px] lg:tracking-[-0.05em]">
             <span>Your Pastor speaks. </span>
             <span className="text-accent">Rhema finds the verse.</span>
           </h1>
-          <p className="text-pretty text-base leading-[1.5] text-muted-foreground sm:text-lg md:text-xl lg:text-2xl lg:leading-8">
+          <p className="text-base leading-[1.5] text-pretty text-muted-foreground sm:text-lg md:text-xl lg:text-2xl lg:leading-8">
             Rhema listens to a live sermon audio feed, transcribes speech in
             real time, detects Bible verse references (both explicit citations
             and quoted passages), and renders them as broadcast-ready overlays
@@ -51,7 +51,7 @@ export function HeroSection({ stars }: { stars: number }) {
         </div>
       </Container>
     </section>
-  );
+  )
 }
 
 function HeroGlow() {
@@ -64,5 +64,5 @@ function HeroGlow() {
           "radial-gradient(60% 50% at 50% 0%, rgba(0,153,255,0.18) 0%, rgba(0,153,255,0.05) 40%, transparent 70%)",
       }}
     />
-  );
+  )
 }

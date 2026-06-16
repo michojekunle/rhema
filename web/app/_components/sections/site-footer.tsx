@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "next/link"
 import {
   IconBrandApple,
   IconBrandGithub,
@@ -6,10 +6,10 @@ import {
   IconBrandWindows,
   IconBrandX,
   IconMail,
-} from "@tabler/icons-react";
-import { Container } from "../ui/container";
-import { RhemaLogo } from "../ui/rhema-logo";
-import { SITE } from "../../_lib/site";
+} from "@tabler/icons-react"
+import { Container } from "../ui/container"
+import { RhemaLogo } from "../ui/rhema-logo"
+import { SITE } from "../../_lib/site"
 
 const GROUPS = [
   {
@@ -47,7 +47,7 @@ const GROUPS = [
       { label: "Testimonials", href: "#testimonials" },
     ],
   },
-];
+]
 
 export function SiteFooter() {
   return (
@@ -61,11 +61,11 @@ export function SiteFooter() {
               on screen, the instant it&apos;s spoken.
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border-strong px-[14px] py-[6px] text-[15px] text-foreground">
+              <span className="border-border-strong inline-flex items-center gap-2 rounded-full border px-[14px] py-[6px] text-[15px] text-foreground">
                 <IconBrandWindows size={16} aria-hidden stroke={2} />
                 Windows
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-border-strong px-[14px] py-[6px] text-[15px] text-foreground">
+              <span className="border-border-strong inline-flex items-center gap-2 rounded-full border px-[14px] py-[6px] text-[15px] text-foreground">
                 <IconBrandApple size={16} aria-hidden stroke={2} />
                 macOS
               </span>
@@ -95,7 +95,7 @@ export function SiteFooter() {
             </nav>
           ))}
         </div>
-        <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 text-[13px] leading-5 text-subtle-foreground md:flex-row md:items-center">
+        <div className="text-subtle-foreground mt-12 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 text-[13px] leading-5 md:flex-row md:items-center">
           <p>© {new Date().getFullYear()} Rhema. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <a
@@ -136,7 +136,7 @@ export function SiteFooter() {
         </div>
       </Container>
     </footer>
-  );
+  )
 }
 
 function FooterLink({
@@ -144,12 +144,12 @@ function FooterLink({
   external,
   children,
 }: {
-  href: string;
-  external?: boolean;
-  children: React.ReactNode;
+  href: string
+  external?: boolean
+  children: React.ReactNode
 }) {
   const className =
-    "text-[15px] leading-6 text-muted-foreground transition-colors hover:text-foreground";
+    "text-[15px] leading-6 text-muted-foreground transition-colors hover:text-foreground"
   if (external || /^https?:|^mailto:/.test(href)) {
     return (
       <a
@@ -160,11 +160,11 @@ function FooterLink({
       >
         {children}
       </a>
-    );
+    )
   }
   return (
     <Link href={href} className={className}>
       {children}
     </Link>
-  );
+  )
 }

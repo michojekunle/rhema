@@ -13,7 +13,12 @@ export function PreviewPanel() {
   // When translation changes, re-fetch the selected verse in the new translation
   useEffect(() => {
     const verse = useBibleStore.getState().selectedVerse
-    if (verse && verse.book_number > 0 && verse.chapter > 0 && verse.verse > 0) {
+    if (
+      verse &&
+      verse.book_number > 0 &&
+      verse.chapter > 0 &&
+      verse.verse > 0
+    ) {
       bibleActions
         .fetchVerse(verse.book_number, verse.chapter, verse.verse)
         .then((v) => {
@@ -26,9 +31,13 @@ export function PreviewPanel() {
   const activeThemeId = useBroadcastStore((s) => s.activeThemeId)
 
   const activeTheme = themes.find((t) => t.id === activeThemeId) ?? themes[0]
-  const translation = translations.find((t) => t.id === activeTranslationId)?.abbreviation ?? "KJV"
+  const translation =
+    translations.find((t) => t.id === activeTranslationId)?.abbreviation ??
+    "KJV"
 
-  const verseData = selectedVerse ? toVerseRenderData(selectedVerse, translation) : null
+  const verseData = selectedVerse
+    ? toVerseRenderData(selectedVerse, translation)
+    : null
 
   return (
     <div

@@ -385,6 +385,78 @@ impl Drop for ActiveNdiSession {
 }
 
 fn resolve_library_path() -> Result<PathBuf, NdiError> {
+    // 1. Try environment variables (NDI 6 / NDI 5) - standard for NDI SDK installations
+    if cfg!(target_os = "windows") {
+        if let Ok(val) = std::env::var("NDI_RUNTIME_DIR_V6") {
+            let path = Path::new(&val).join("Processing.NDI.Lib.x64.dll");
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+        if let Ok(val) = std::env::var("NDI_RUNTIME_DIR_V5") {
+            let path = Path::new(&val).join("Processing.NDI.Lib.x64.dll");
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+    } else if cfg!(target_os = "macos") {
+        if let Ok(val) = std::env::var("NDI_RUNTIME_DIR_V6") {
+            let path = Path::new(&val).join("libndi.dylib");
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+        if let Ok(val) = std::env::var("NDI_RUNTIME_DIR_V5") {
+            let path = Path::new(&val).join("libndi.dylib");
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+    } else {
+        if let Ok(val) = std::env::var("NDI_RUNTIME_DIR_V6") {
+            let path = Path::new(&val).join("libndi.so");
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+        if let Ok(val) = std::env::var("NDI_RUNTIME_DIR_V5") {
+            let path = Path::new(&val).join("libndi.so");
+            if path.exists() {
+                return Ok(path);
+            }
+        }
+    }
+
+    // 2. Try common system locations
+    let system_paths: Vec<&str> = if cfg!(target_os = "macos") {
+        vec![
+            "/usr/local/lib/libndi.dylib",
+            "/usr/lib/libndi.dylib",
+            "/Library/Application Support/NDI/lib/libndi.dylib",
+        ]
+    } else if cfg!(target_os = "windows") {
+        vec![
+            "C:\\Program Files\\NDI\\NDI 6 Tools\\Runtime\\Processing.NDI.Lib.x64.dll",
+            "C:\\Program Files\\NDI\\NDI 5 Tools\\Runtime\\Processing.NDI.Lib.x64.dll",
+            "C:\\Program Files\\NDI\\NDI 6 SDK\\Bin\\x64\\Processing.NDI.Lib.x64.dll",
+            "C:\\Program Files\\NDI\\NDI 5 SDK\\Bin\\x64\\Processing.NDI.Lib.x64.dll",
+        ]
+    } else {
+        vec![
+            "/usr/local/lib/libndi.so",
+            "/usr/lib/libndi.so",
+            "/usr/lib/x86_64-linux-gnu/libndi.so",
+        ]
+    };
+
+    for path_str in &system_paths {
+        let path = Path::new(path_str);
+        if path.exists() {
+            return Ok(path.to_path_buf());
+        }
+    }
+
+    // 3. Try relative local SDK paths (development mode fallback)
     let candidates: Vec<&str> = if cfg!(target_os = "macos") {
         vec!["sdk/ndi/macos/libndi.dylib"]
     } else if cfg!(target_os = "windows") {
@@ -408,7 +480,24 @@ fn resolve_library_path() -> Result<PathBuf, NdiError> {
         }
     }
 
-    Err(NdiError::LibraryNotFound(candidates.join(", ")))
+    // 4. Try loading from system library search path (standard dynamic loader paths)
+    let lib_name = if cfg!(target_os = "macos") {
+        "libndi.dylib"
+    } else if cfg!(target_os = "windows") {
+        "Processing.NDI.Lib.x64.dll"
+    } else {
+        "libndi.so"
+    };
+
+    // Safety: libloading Library::new with a bare filename checks System32/system lib paths.
+    // If it works, we return it as a PathBuf containing just the filename.
+    if unsafe { Library::new(lib_name) }.is_ok() {
+        return Ok(PathBuf::from(lib_name));
+    }
+
+    Err(NdiError::LibraryNotFound(format!(
+        "NDI shared library not found. Checked environment variables (NDI_RUNTIME_DIR_V6/V5), common system paths, local SDK, and OS search path."
+    )))
 }
 
 fn load_symbol<'a, T>(

@@ -47,17 +47,25 @@ interface BroadcastState {
   setRenamingTheme: (id: string | null) => void
 }
 
-function setNestedValue(obj: Record<string, unknown>, path: string, value: unknown): Record<string, unknown> {
+function setNestedValue(
+  obj: Record<string, unknown>,
+  path: string,
+  value: unknown
+): Record<string, unknown> {
   const keys = path.split(".")
   const isIndex = (key: string) => /^\d+$/.test(key)
-  const result: Record<string, unknown> = Array.isArray(obj) ? [...obj] as unknown as Record<string, unknown> : { ...obj }
+  const result: Record<string, unknown> = Array.isArray(obj)
+    ? ([...obj] as unknown as Record<string, unknown>)
+    : { ...obj }
 
   let current: Record<string, unknown> | unknown[] = result
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i]
     const nextKey = keys[i + 1]
     const currentIndex = isIndex(key) ? Number(key) : key
-    const existing = (current as Record<string, unknown> | unknown[])[currentIndex as keyof typeof current]
+    const existing = (current as Record<string, unknown> | unknown[])[
+      currentIndex as keyof typeof current
+    ]
     const nextContainer = Array.isArray(existing)
       ? [...existing]
       : existing && typeof existing === "object"
@@ -66,13 +74,17 @@ function setNestedValue(obj: Record<string, unknown>, path: string, value: unkno
           ? []
           : {}
 
-    ;(current as Record<string, unknown> | unknown[])[currentIndex as keyof typeof current] = nextContainer as never
+    ;(current as Record<string, unknown> | unknown[])[
+      currentIndex as keyof typeof current
+    ] = nextContainer as never
     current = nextContainer as Record<string, unknown> | unknown[]
   }
 
   const lastKey = keys[keys.length - 1]
   const lastIndex = isIndex(lastKey) ? Number(lastKey) : lastKey
-  ;(current as Record<string, unknown> | unknown[])[lastIndex as keyof typeof current] = value as never
+  ;(current as Record<string, unknown> | unknown[])[
+    lastIndex as keyof typeof current
+  ] = value as never
 
   return result
 }
@@ -158,7 +170,9 @@ export const useBroadcastStore = create<BroadcastState>((set, get) => ({
         t.id === id && !t.builtin ? { ...t, name, updatedAt: Date.now() } : t
       ),
       draftTheme:
-        s.draftTheme?.id === id ? { ...s.draftTheme, name, updatedAt: Date.now() } : s.draftTheme,
+        s.draftTheme?.id === id
+          ? { ...s.draftTheme, name, updatedAt: Date.now() }
+          : s.draftTheme,
     })),
   togglePinTheme: (id) =>
     set((s) => ({
@@ -199,7 +213,12 @@ export const useBroadcastStore = create<BroadcastState>((set, get) => ({
   // Designer
   setDesignerOpen: (isDesignerOpen) => {
     if (!isDesignerOpen) {
-      set({ isDesignerOpen, editingThemeId: null, draftTheme: null, selectedElement: null })
+      set({
+        isDesignerOpen,
+        editingThemeId: null,
+        draftTheme: null,
+        selectedElement: null,
+      })
     } else {
       set({ isDesignerOpen })
     }
@@ -222,14 +241,20 @@ export const useBroadcastStore = create<BroadcastState>((set, get) => ({
   },
   updateDraft: (updates) => {
     set((s) => ({
-      draftTheme: s.draftTheme ? { ...s.draftTheme, ...updates, updatedAt: Date.now() } : null,
+      draftTheme: s.draftTheme
+        ? { ...s.draftTheme, ...updates, updatedAt: Date.now() }
+        : null,
     }))
     emitDraftToBroadcast(get())
   },
   updateDraftNested: (path, value) => {
     set((s) => ({
       draftTheme: s.draftTheme
-        ? (setNestedValue(s.draftTheme as unknown as Record<string, unknown>, path, value) as unknown as BroadcastTheme)
+        ? (setNestedValue(
+            s.draftTheme as unknown as Record<string, unknown>,
+            path,
+            value
+          ) as unknown as BroadcastTheme)
         : null,
     }))
     emitDraftToBroadcast(get())
@@ -274,7 +299,10 @@ let hydrationPromise: Promise<void> | null = null
 
 async function getThemeStore(): Promise<Store> {
   if (!tauriStore) {
-    tauriStore = await load("broadcast-themes.json", { autoSave: false, defaults: {} })
+    tauriStore = await load("broadcast-themes.json", {
+      autoSave: false,
+      defaults: {},
+    })
   }
   return tauriStore
 }
@@ -284,12 +312,20 @@ export function hydrateBroadcastThemes(): Promise<void> {
   hydrationPromise = (async () => {
     try {
       const store = await getThemeStore()
-      const customThemes = (await store.get("customThemes")) as BroadcastTheme[] | undefined
+      const customThemes = (await store.get("customThemes")) as
+        | BroadcastTheme[]
+        | undefined
       const activeId = (await store.get("activeThemeId")) as string | undefined
-      const altActiveId = (await store.get("altActiveThemeId")) as string | undefined
+      const altActiveId = (await store.get("altActiveThemeId")) as
+        | string
+        | undefined
 
       const patch: Partial<BroadcastState> = {}
-      if (customThemes && Array.isArray(customThemes) && customThemes.length > 0) {
+      if (
+        customThemes &&
+        Array.isArray(customThemes) &&
+        customThemes.length > 0
+      ) {
         patch.themes = [...BUILTIN_THEMES, ...customThemes]
       }
       if (activeId) patch.activeThemeId = activeId
@@ -315,7 +351,9 @@ export function hydrateBroadcastThemes(): Promise<void> {
         }, SAVE_DEBOUNCE_MS)
       })
     } catch {
-      console.warn("[broadcast] Failed to load persisted themes, using defaults")
+      console.warn(
+        "[broadcast] Failed to load persisted themes, using defaults"
+      )
     }
   })()
   return hydrationPromise

@@ -29,7 +29,11 @@ function AudioLevelMeter() {
 /**
  * Leaf component that subscribes to `currentPartial`. Partials update per audio tick.
  */
-function LivePartialLine({ scrollRef }: { scrollRef: RefObject<HTMLDivElement | null> }) {
+function LivePartialLine({
+  scrollRef,
+}: {
+  scrollRef: RefObject<HTMLDivElement | null>
+}) {
   const currentPartial = useTranscriptStore((s) => s.currentPartial)
 
   useEffect(() => {
@@ -95,13 +99,11 @@ export function TranscriptPanel() {
         text: directHit.verse_text,
       })
       // Navigate book search panel to this verse
-      useBibleStore
-        .getState()
-        .setPendingNavigation({
-          bookNumber: directHit.book_number,
-          chapter: directHit.chapter,
-          verse: directHit.verse,
-        })
+      useBibleStore.getState().setPendingNavigation({
+        bookNumber: directHit.book_number,
+        chapter: directHit.chapter,
+        verse: directHit.verse,
+      })
     }
 
     // Auto-queue high-confidence detections
@@ -117,7 +119,7 @@ export function TranscriptPanel() {
             d.chapter,
             d.verse,
             d.verse_ref,
-            d.verse_text,
+            d.verse_text
           )
       ) {
         continue
@@ -132,7 +134,7 @@ export function TranscriptPanel() {
           ? queue.items.findIndex(
               (i) =>
                 i.verse.book_number === d.book_number &&
-                i.verse.chapter === d.chapter,
+                i.verse.chapter === d.chapter
             )
           : queue.findDuplicate(d.book_number, d.chapter, d.verse)
         if (dupIdx !== -1) {
@@ -273,7 +275,7 @@ export function TranscriptPanel() {
           </Button>
         ) : (
           <Button variant="ghost" size="sm" onClick={startTranscription}>
-              <MicIcon className="size-3" />
+            <MicIcon className="size-3" />
             Start transcribing
           </Button>
         )}

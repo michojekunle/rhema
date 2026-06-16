@@ -1,6 +1,6 @@
-import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
-import { SITE } from "@/app/_lib/site";
-import { RhemaLogo } from "@/app/_components/ui/rhema-logo";
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared"
+import { SITE } from "@/app/_lib/site"
+import { RhemaLogo } from "@/app/_components/ui/rhema-logo"
 
 export function baseOptions(): BaseLayoutProps {
   return {
@@ -26,5 +26,5 @@ export function baseOptions(): BaseLayoutProps {
         external: true,
       },
     ],
-  };
+  }
 }

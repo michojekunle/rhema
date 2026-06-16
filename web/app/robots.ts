@@ -1,7 +1,7 @@
-import type { MetadataRoute } from "next";
-import { SITE } from "./_lib/site";
+import type { MetadataRoute } from "next"
+import { SITE } from "./_lib/site"
 
-export const dynamic = "force-static";
+export const dynamic = "force-static"
 
 // We explicitly allow every documented AI/search crawler. Rhema is open-source
 // software for churches — getting cited by AI engines (ChatGPT, Perplexity,
@@ -19,7 +19,7 @@ const TRADITIONAL_SEARCH = [
   "DuckDuckBot",
   "YandexBot",
   "Applebot",
-];
+]
 
 const AI_TRAINING = [
   "GPTBot", // OpenAI training
@@ -35,7 +35,7 @@ const AI_TRAINING = [
   "CCBot", // Common Crawl (used by many models)
   "Cohere-AI", // Cohere training
   "Diffbot", // Diffbot data extraction
-];
+]
 
 const AI_SEARCH_INDEX = [
   "OAI-SearchBot", // ChatGPT search index
@@ -43,7 +43,7 @@ const AI_SEARCH_INDEX = [
   "PerplexityBot", // Perplexity index
   "DuckAssistBot", // DuckDuckGo AI search
   "Meta-ExternalFetcher", // Meta AI fetcher
-];
+]
 
 const AI_USER_INITIATED = [
   "ChatGPT-User", // ChatGPT browsing on user prompt
@@ -52,7 +52,7 @@ const AI_USER_INITIATED = [
   "Claude-Web", // legacy, harmless to keep
   "Perplexity-User", // Perplexity user-initiated
   "MistralAI-User", // Mistral Le Chat
-];
+]
 
 export default function robots(): MetadataRoute.Robots {
   const allowed = [
@@ -60,7 +60,7 @@ export default function robots(): MetadataRoute.Robots {
     ...AI_TRAINING,
     ...AI_SEARCH_INDEX,
     ...AI_USER_INITIATED,
-  ];
+  ]
 
   return {
     rules: [
@@ -69,5 +69,5 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: `${SITE.url}/sitemap.xml`,
     host: SITE.url,
-  };
+  }
 }

@@ -1,9 +1,9 @@
-import { IconBrandGithub } from "@tabler/icons-react";
-import { Button } from "../ui/button";
-import { Container } from "../ui/container";
-import { DownloadButton } from "../ui/download-button";
-import { Reveal } from "../ui/reveal";
-import { SITE } from "../../_lib/site";
+import { IconBrandGithub } from "@tabler/icons-react"
+import { Button } from "../ui/button"
+import { Container } from "../ui/container"
+import { DownloadButton } from "../ui/download-button"
+import { Reveal } from "../ui/reveal"
+import { SITE } from "../../_lib/site"
 
 export function FinalCtaSection({ stars }: { stars: number }) {
   return (
@@ -15,7 +15,7 @@ export function FinalCtaSection({ stars }: { stars: number }) {
         <Reveal>
           <h2
             id="final-cta-heading"
-            className="text-balance font-medium text-foreground text-[40px] leading-[1.05] tracking-[-0.035em] sm:text-[56px] md:text-[72px] lg:text-[84px] lg:tracking-[-0.05em]"
+            className="text-[40px] leading-[1.05] font-medium tracking-[-0.035em] text-balance text-foreground sm:text-[56px] md:text-[72px] lg:text-[84px] lg:tracking-[-0.05em]"
           >
             Innovating church{" "}
             <span className="text-accent">presentations with AI</span>
@@ -43,5 +43,5 @@ export function FinalCtaSection({ stars }: { stars: number }) {
         </Reveal>
       </Container>
     </section>
-  );
+  )
 }

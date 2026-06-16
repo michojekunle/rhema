@@ -1,31 +1,31 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import { cn } from "../../_lib/utils";
+import { useEffect, useRef, useState } from "react"
+import { cn } from "../../_lib/utils"
 
-type Callback = () => void;
+type Callback = () => void
 
-let sharedObserver: IntersectionObserver | null = null;
-const callbacks = new WeakMap<Element, Callback>();
+let sharedObserver: IntersectionObserver | null = null
+const callbacks = new WeakMap<Element, Callback>()
 
 function getObserver() {
-  if (sharedObserver) return sharedObserver;
-  if (typeof IntersectionObserver === "undefined") return null;
+  if (sharedObserver) return sharedObserver
+  if (typeof IntersectionObserver === "undefined") return null
   sharedObserver = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const cb = callbacks.get(entry.target);
+        if (!entry.isIntersecting) continue
+        const cb = callbacks.get(entry.target)
         if (cb) {
-          cb();
-          sharedObserver?.unobserve(entry.target);
-          callbacks.delete(entry.target);
+          cb()
+          sharedObserver?.unobserve(entry.target)
+          callbacks.delete(entry.target)
         }
       }
     },
     { threshold: 0.12, rootMargin: "0px 0px -10% 0px" }
-  );
-  return sharedObserver;
+  )
+  return sharedObserver
 }
 
 export function Reveal({
@@ -34,29 +34,29 @@ export function Reveal({
   delay = 0,
   as: Tag = "div",
 }: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-  as?: "div" | "section" | "header" | "footer" | "li";
+  children: React.ReactNode
+  className?: string
+  delay?: number
+  as?: "div" | "section" | "header" | "footer" | "li"
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const observer = getObserver();
+    const node = ref.current
+    if (!node) return
+    const observer = getObserver()
     if (!observer) {
-      queueMicrotask(() => setVisible(true));
-      return;
+      queueMicrotask(() => setVisible(true))
+      return
     }
-    callbacks.set(node, () => setVisible(true));
-    observer.observe(node);
+    callbacks.set(node, () => setVisible(true))
+    observer.observe(node)
     return () => {
-      observer.unobserve(node);
-      callbacks.delete(node);
-    };
-  }, []);
+      observer.unobserve(node)
+      callbacks.delete(node)
+    }
+  }, [])
 
   return (
     <Tag
@@ -66,5 +66,5 @@ export function Reveal({
     >
       {children}
     </Tag>
-  );
+  )
 }

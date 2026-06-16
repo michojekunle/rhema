@@ -1,10 +1,10 @@
-import { SITE } from "../../_lib/site";
-import { FAQS } from "../sections/faq-section.data";
+import { SITE } from "../../_lib/site"
+import { FAQS } from "../sections/faq-section.data"
 
-const ORG_ID = `${SITE.url}/#organization`;
-const SITE_ID = `${SITE.url}/#website`;
-const APP_ID = `${SITE.url}/#software`;
-const FAQ_ID = `${SITE.url}/#faq`;
+const ORG_ID = `${SITE.url}/#organization`
+const SITE_ID = `${SITE.url}/#website`
+const APP_ID = `${SITE.url}/#software`
+const FAQ_ID = `${SITE.url}/#faq`
 
 export function StructuredData() {
   const graph = {
@@ -82,12 +82,12 @@ export function StructuredData() {
         })),
       },
     ],
-  };
+  }
 
   return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
     />
-  );
+  )
 }

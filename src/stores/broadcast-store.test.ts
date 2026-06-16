@@ -19,7 +19,7 @@ describe("broadcast store sync", () => {
     useBroadcastStore.setState({
       activeThemeId: theme.id,
       liveVerse: {
-      reference: "John 3:16",
+        reference: "John 3:16",
         segments: [{ text: "For God so loved the world", verseNumber: 16 }],
       },
     })
@@ -34,7 +34,7 @@ describe("broadcast store sync", () => {
       expect.objectContaining({
         theme: expect.objectContaining({ id: theme.id }),
         verse: expect.objectContaining({ reference: "John 3:16" }),
-      }),
+      })
     )
     expect(emitToMock).toHaveBeenCalledWith(
       "broadcast-alt",
@@ -42,7 +42,7 @@ describe("broadcast store sync", () => {
       expect.objectContaining({
         theme: expect.objectContaining({ id: theme.id }),
         verse: expect.objectContaining({ reference: "John 3:16" }),
-      }),
+      })
     )
   })
 })

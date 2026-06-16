@@ -50,10 +50,13 @@ export function normalizeInput(input: string): string {
 /**
  * Find matching book by name or abbreviation (case insensitive)
  */
-export function findMatchingBook(bookInput: string, books: Book[]): Book | undefined {
+export function findMatchingBook(
+  bookInput: string,
+  books: Book[]
+): Book | undefined {
   const normalized = bookInput.toLowerCase()
   return books.find(
-    b =>
+    (b) =>
       b.name.toLowerCase().startsWith(normalized) ||
       b.abbreviation.toLowerCase().startsWith(normalized)
   )
@@ -76,7 +79,9 @@ export function getAutocompleteSuggestion(
 
   // Check if it's just a number (for numbered books like "1", "2", "3")
   if (/^\d+$/.test(trimmed)) {
-    const matchingBook = books.find(b => b.name.startsWith(normalizedInput + " "))
+    const matchingBook = books.find((b) =>
+      b.name.startsWith(normalizedInput + " ")
+    )
 
     if (matchingBook) {
       const remainder = matchingBook.name.slice(normalizedInput.length)
@@ -85,14 +90,16 @@ export function getAutocompleteSuggestion(
         matchedBook: matchingBook,
         chapter: 1,
         verse: 1,
-        stage: "book"
+        stage: "book",
       }
     }
   }
 
   // Parse: "NumberedBook Chapter:Verse" or "BookName Chapter:Verse"
   // Match patterns like: "I J", "I John", "John", "John 3", "John 3:16"
-  const match = normalizedInput.match(/^([IVX]+\s+[a-zA-Z]+|[IVX]+\s+[a-zA-Z\s]+|[a-zA-Z\s]+?)\s*(\d+)?:?(\d+)?$/)
+  const match = normalizedInput.match(
+    /^([IVX]+\s+[a-zA-Z]+|[IVX]+\s+[a-zA-Z\s]+|[a-zA-Z\s]+?)\s*(\d+)?:?(\d+)?$/
+  )
 
   if (!match) {
     return { suggestion: "", stage: "none" }
@@ -115,30 +122,30 @@ export function getAutocompleteSuggestion(
       matchedBook: matchingBook,
       chapter: 1,
       verse: 1,
-      stage: "book"
+      stage: "book",
     }
   }
 
   const chapter = parseInt(chapterNum)
 
   // Stage 2: Suggest colon after chapter
-  if (!verseNum && !trimmed.includes(':')) {
+  if (!verseNum && !trimmed.includes(":")) {
     return {
       suggestion: trimmed + ":1",
       matchedBook: matchingBook,
       chapter,
       verse: 1,
-      stage: "chapter"
+      stage: "chapter",
     }
   }
 
   // Stage 3: Has colon but no verse number yet
-  if (!verseNum && trimmed.includes(':')) {
+  if (!verseNum && trimmed.includes(":")) {
     return {
       suggestion: "",
       matchedBook: matchingBook,
       chapter,
-      stage: "verse"
+      stage: "verse",
     }
   }
 
@@ -150,7 +157,7 @@ export function getAutocompleteSuggestion(
       matchedBook: matchingBook,
       chapter,
       verse,
-      stage: "complete"
+      stage: "complete",
     }
   }
 
@@ -172,7 +179,9 @@ export function getTabNavigationResult(
   const suggestionTrimmed = currentSuggestion.trim()
 
   // Extract the full book name from the suggestion
-  const bookNameMatch = suggestionTrimmed.match(/^(([IVX]+\s+)?[a-zA-Z\s]+)\s+\d+:\d+$/)
+  const bookNameMatch = suggestionTrimmed.match(
+    /^(([IVX]+\s+)?[a-zA-Z\s]+)\s+\d+:\d+$/
+  )
 
   if (bookNameMatch) {
     const fullBookName = bookNameMatch[1]
@@ -183,8 +192,10 @@ export function getTabNavigationResult(
 
     // Check if current input has a chapter number
     const hasChapter =
-      new RegExp(`^${fullBookName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+\\d+`, 'i').test(trimmed) &&
-      !trimmed.includes(':')
+      new RegExp(
+        `^${fullBookName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+\\d+`,
+        "i"
+      ).test(trimmed) && !trimmed.includes(":")
 
     // Stage 1: Still typing book name -> advance to complete book name
     if (!currentIsCompleteBookName && !hasChapter) {
@@ -193,7 +204,9 @@ export function getTabNavigationResult(
 
     // Stage 2: Has chapter -> advance to chapter with colon
     if (hasChapter) {
-      const chapterMatch = suggestionTrimmed.match(/^(([IVX]+\s+)?[a-zA-Z\s]+\s+\d+):\d+$/)
+      const chapterMatch = suggestionTrimmed.match(
+        /^(([IVX]+\s+)?[a-zA-Z\s]+\s+\d+):\d+$/
+      )
       if (chapterMatch) {
         return chapterMatch[1] + ":"
       }

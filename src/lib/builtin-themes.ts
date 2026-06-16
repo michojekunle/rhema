@@ -1,6 +1,16 @@
 import type { BroadcastTheme } from "@/types/broadcast"
 
-const baseTheme: Omit<BroadcastTheme, "id" | "name" | "background" | "verseText" | "reference" | "layout" | "transition" | "textBox"> = {
+const baseTheme: Omit<
+  BroadcastTheme,
+  | "id"
+  | "name"
+  | "background"
+  | "verseText"
+  | "reference"
+  | "layout"
+  | "transition"
+  | "textBox"
+> = {
   builtin: true,
   pinned: false,
   createdAt: 0,

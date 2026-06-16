@@ -49,11 +49,7 @@ async function fetchVerse(
   })
 }
 
-async function searchVerses(
-  query: string,
-  limit = 20,
-  translationId?: number
-) {
+async function searchVerses(query: string, limit = 20, translationId?: number) {
   const id = translationId ?? useBibleStore.getState().activeTranslationId
   const results = await invoke<Verse[]>("search_verses", {
     query,

@@ -50,9 +50,7 @@ export async function findPython(): Promise<string> {
   process.exit(1)
 }
 
-export function parsePythonVersion(
-  output: string
-): [number, number, number] {
+export function parsePythonVersion(output: string): [number, number, number] {
   const match = output.trim().match(/Python\s+(\d+)\.(\d+)\.(\d+)/)
   if (!match) {
     throw new Error(`Could not parse Python version from: ${output.trim()}`)
@@ -72,9 +70,7 @@ export function isVersionSufficient(
 
 export async function ensureVenv(pythonCmd: string): Promise<void> {
   const venvPython =
-    process.platform === "win32"
-      ? getVenvBin("python")
-      : getVenvBin("python3")
+    process.platform === "win32" ? getVenvBin("python") : getVenvBin("python3")
 
   const venvPip = getVenvBin("pip")
 
@@ -100,13 +96,18 @@ export async function ensureVenv(pythonCmd: string): Promise<void> {
   console.log("  ✓ Virtual environment created")
 
   console.log("  Upgrading pip to avoid resolver issues...")
-  const upgradeProc = Bun.spawn([venvPython, "-m", "pip", "install", "--upgrade", "pip"], {
-    stdout: "inherit",
-    stderr: "inherit",
-  })
+  const upgradeProc = Bun.spawn(
+    [venvPython, "-m", "pip", "install", "--upgrade", "pip"],
+    {
+      stdout: "inherit",
+      stderr: "inherit",
+    }
+  )
   const upgradeExitCode = await upgradeProc.exited
   if (upgradeExitCode !== 0) {
-    console.warn("  ⚠️ Warning: Failed to upgrade pip. Continuing with default version...")
+    console.warn(
+      "  ⚠️ Warning: Failed to upgrade pip. Continuing with default version..."
+    )
   } else {
     console.log("  ✓ Pip upgraded successfully")
   }
@@ -120,14 +121,17 @@ export async function installPipDeps(packages: string[]): Promise<void> {
   for (const pkg of packages) {
     const cleanName = pkg.split(/[\[>=<]/)[0].trim()
     try {
-      const proc = Bun.spawn([
-        python,
-        "-c",
-        `import importlib.metadata; importlib.metadata.version('${cleanName}')`
-      ], {
-        stdout: "pipe",
-        stderr: "pipe"
-      })
+      const proc = Bun.spawn(
+        [
+          python,
+          "-c",
+          `import importlib.metadata; importlib.metadata.version('${cleanName}')`,
+        ],
+        {
+          stdout: "pipe",
+          stderr: "pipe",
+        }
+      )
       const exitCode = await proc.exited
       if (exitCode !== 0) {
         missingPackages.push(pkg)
@@ -142,7 +146,9 @@ export async function installPipDeps(packages: string[]): Promise<void> {
     return
   }
 
-  console.log(`  Installing missing dependencies: ${missingPackages.join(", ")}...`)
+  console.log(
+    `  Installing missing dependencies: ${missingPackages.join(", ")}...`
+  )
   const proc = Bun.spawn([pip, "install", ...missingPackages], {
     stdout: "inherit",
     stderr: "inherit",
@@ -169,9 +175,7 @@ export async function installPipDeps(packages: string[]): Promise<void> {
  * Full Python environment setup: find Python, verify version, create venv,
  * install packages. Returns the path to the venv Python binary.
  */
-export async function ensurePythonEnv(
-  packages: string[]
-): Promise<string> {
+export async function ensurePythonEnv(packages: string[]): Promise<string> {
   console.log("\n🐍 Setting up Python environment...\n")
 
   const pythonCmd = await findPython()

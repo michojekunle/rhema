@@ -3,6 +3,7 @@
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use std::path::PathBuf;
 
 use tauri::{AppHandle, Emitter, Manager, State};
 
@@ -40,6 +41,120 @@ use rhema_stt::{DeepgramClient, SttConfig, SttProvider, TranscriptEvent};
 /// 3. Fans audio out to both the level meter (emits `audio_level` events) and STT.
 /// 4. Receives transcripts and emits `transcript_partial` / `transcript_final` events.
 /// 5. On final transcripts, runs the detection pipeline and emits `verse_detected` events.
+fn resolve_model_path(app: &AppHandle, filename: &str) -> Result<PathBuf, String> {
+    // 1. Dev path
+    let base_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+    let dev_path = base_dir.join("models").join("whisper").join(filename);
+    if dev_path.exists() {
+        return Ok(dev_path);
+    }
+
+    // 2. Resource path (read-only bundled path)
+    if let Some(resource_dir) = app.path().resource_dir().ok() {
+        let bundled_path = resource_dir.join("_up_").join("models").join("whisper").join(filename);
+        if bundled_path.exists() {
+            return Ok(bundled_path);
+        }
+    }
+
+    // 3. Writable Local App Data path (where downloads go)
+    if let Some(local_data_dir) = app.path().app_local_data_dir().ok() {
+        let downloaded_path = local_data_dir.join("models").join("whisper").join(filename);
+        if downloaded_path.exists() {
+            return Ok(downloaded_path);
+        }
+    }
+
+    Err(format!(
+        "Whisper model file '{}' not found. Please download it in Settings.",
+        filename
+    ))
+}
+
+#[tauri::command]
+pub async fn check_whisper_model(app: AppHandle, model_name: String) -> Result<bool, String> {
+    let filename = format!("ggml-{}-q8_0.bin", model_name);
+    Ok(resolve_model_path(&app, &filename).is_ok())
+}
+
+#[tauri::command]
+pub async fn download_whisper_model(app: AppHandle, model_name: String) -> Result<(), String> {
+    use tokio::io::AsyncWriteExt;
+    use futures_util::StreamExt;
+
+    let filename = format!("ggml-{}-q8_0.bin", model_name);
+
+    if resolve_model_path(&app, &filename).is_ok() {
+        return Ok(());
+    }
+
+    let local_data_dir = app.path().app_local_data_dir()
+        .map_err(|e| format!("Failed to get local data dir: {e}"))?;
+    let dest_dir = local_data_dir.join("models").join("whisper");
+    std::fs::create_dir_all(&dest_dir)
+        .map_err(|e| format!("Failed to create download directory: {e}"))?;
+    let dest_path = dest_dir.join(&filename);
+    let temp_path = dest_path.with_extension("tmp");
+
+    let hf_endpoint = std::env::var("HF_ENDPOINT").unwrap_or_else(|_| "https://huggingface.co".to_string());
+    let url = format!("{}/ggerganov/whisper.cpp/resolve/main/{}", hf_endpoint, filename);
+
+    log::info!("Downloading local Whisper model from {url} to {}", dest_path.display());
+
+    let client = reqwest::Client::new();
+    let response = client.get(&url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to start download: {e}"))?;
+
+    if !response.status().is_success() {
+        return Err(format!("Download failed with status: {}", response.status()));
+    }
+
+    let total_size = response.content_length();
+    let mut file = tokio::fs::File::create(&temp_path)
+        .await
+        .map_err(|e| format!("Failed to create temp file: {e}"))?;
+
+    let mut downloaded: u64 = 0;
+    let mut stream = response.bytes_stream();
+
+    let mut last_emit = std::time::Instant::now();
+
+    while let Some(chunk_result) = stream.next().await {
+        let chunk = chunk_result.map_err(|e| format!("Error during download: {e}"))?;
+        file.write_all(&chunk)
+            .await
+            .map_err(|e| format!("Failed to write to file: {e}"))?;
+
+        downloaded += chunk.len() as u64;
+
+        if last_emit.elapsed() > std::time::Duration::from_millis(150) || total_size.map_or(false, |total| downloaded == total) {
+            let percentage = total_size.map(|total| (downloaded as f64 / total as f64) * 100.0).unwrap_or(0.0);
+            let _ = app.emit("whisper_download_progress", serde_json::json!({
+                "model_name": model_name,
+                "downloaded": downloaded,
+                "total": total_size,
+                "percentage": percentage,
+            }));
+            last_emit = std::time::Instant::now();
+        }
+    }
+
+    file.flush().await.map_err(|e| format!("Failed to flush file: {e}"))?;
+    drop(file);
+
+    std::fs::rename(&temp_path, &dest_path)
+        .map_err(|e| format!("Failed to rename temp file: {e}"))?;
+
+    log::info!("Whisper model downloaded successfully: {}", dest_path.display());
+    let _ = app.emit("whisper_download_complete", serde_json::json!({
+        "model_name": model_name,
+    }));
+
+    Ok(())
+}
+
 #[expect(clippy::too_many_lines, reason = "pipeline setup is inherently complex")]
 #[tauri::command]
 pub async fn start_transcription(
@@ -49,6 +164,7 @@ pub async fn start_transcription(
     device_id: Option<String>,
     gain: Option<f32>,
     provider: Option<String>,
+    whisper_model: Option<String>,
 ) -> Result<(), String> {
     // ── 1. Guard: already running? ──────────────────────────────────────
     let (stt_active, audio_active) = {
@@ -65,36 +181,13 @@ pub async fn start_transcription(
     let stt_provider: Box<dyn SttProvider> = match provider_name {
         #[cfg(feature = "whisper")]
         "whisper" => {
-            // Resolve bundled Whisper model path.
-            // Dev: {CARGO_MANIFEST_DIR}/../models/whisper/ggml-large-v3-turbo-q8_0.bin
-            // Prod: resource_dir()/models/whisper/ggml-large-v3-turbo-q8_0.bin
-            let model_filename = "ggml-large-v3-turbo-q8_0.bin";
-            let model_path = {
-                let base_dir =
-                    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
-                let dev_path = base_dir
-                    .join("models")
-                    .join("whisper")
-                    .join(model_filename);
-                if dev_path.exists() {
-                    dev_path
-                } else {
-                    app.path()
-                        .resource_dir()
-                        .map(|p| {
-                            p.join("_up_")
-                                .join("models")
-                                .join("whisper")
-                                .join(model_filename)
-                        })
-                        .ok()
-                        .filter(|p| p.exists())
-                        .ok_or_else(|| {
-                            "Whisper model not found. Run: bun run download:whisper"
-                                .to_string()
-                        })?
-                }
+            let model_filename = match whisper_model.as_deref() {
+                Some("tiny") => "ggml-tiny-q8_0.bin",
+                Some("base") => "ggml-base-q8_0.bin",
+                Some("small") => "ggml-small-q8_0.bin",
+                _ => "ggml-large-v3-turbo-q8_0.bin",
             };
+            let model_path = resolve_model_path(&app, model_filename)?;
 
             let parallelism = std::thread::available_parallelism()
                 .map_or(4, usize::from);
@@ -119,10 +212,10 @@ pub async fn start_transcription(
         }
         _ => {
             // Deepgram (default)
-            let resolved_api_key = if api_key.is_empty() {
-                std::env::var("DEEPGRAM_API_KEY").unwrap_or_default()
+            let resolved_api_key = if api_key.trim().is_empty() {
+                std::env::var("DEEPGRAM_API_KEY").unwrap_or_default().trim().to_string()
             } else {
-                api_key
+                api_key.trim().to_string()
             };
 
             if resolved_api_key.is_empty() {

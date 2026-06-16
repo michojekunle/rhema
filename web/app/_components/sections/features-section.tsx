@@ -5,19 +5,19 @@ import {
   IconPlug,
   IconScreenShare,
   IconSearch,
-} from "@tabler/icons-react";
-import { Container } from "../ui/container";
-import { FeatureCard } from "../ui/feature-card";
-import { Reveal } from "../ui/reveal";
-import { SectionHeading } from "./section-heading";
+} from "@tabler/icons-react"
+import { Container } from "../ui/container"
+import { FeatureCard } from "../ui/feature-card"
+import { Reveal } from "../ui/reveal"
+import { SectionHeading } from "./section-heading"
 
-import type { Icon as TablerIcon } from "@tabler/icons-react";
+import type { Icon as TablerIcon } from "@tabler/icons-react"
 
 type Feature = {
-  icon: TablerIcon;
-  title: string;
-  body: string;
-};
+  icon: TablerIcon
+  title: string
+  body: string
+}
 
 const FEATURES: Feature[] = [
   {
@@ -50,7 +50,7 @@ const FEATURES: Feature[] = [
     title: "Simple Control During Service",
     body: "See all detected verses in one place. Reorder, skip, or show any verse with a click. Stay in control without stress or switching between apps.",
   },
-];
+]
 
 export function FeaturesSection() {
   return (
@@ -65,7 +65,7 @@ export function FeaturesSection() {
             Everything your media team needs
           </SectionHeading>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 md:[&>*]:-ml-px md:[&>*]:-mt-px lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 md:[&>*]:-mt-px md:[&>*]:-ml-px">
           {FEATURES.map((f, i) => (
             <Reveal key={f.title} delay={(i % 3) * 80} className="flex">
               <FeatureCard
@@ -79,5 +79,5 @@ export function FeaturesSection() {
         </div>
       </Container>
     </section>
-  );
+  )
 }

@@ -19,7 +19,7 @@ export function TransportBar() {
   return (
     <div
       data-slot="transport-bar"
-      className="col-span-4 flex h-14 items-center justify-between border-b border-border  bg-card px-3"
+      className="col-span-4 flex h-14 items-center justify-between border-b border-border bg-card px-3"
     >
       {/* Left: Logo + Plan Badge */}
       <div className="flex items-center gap-2.5">
@@ -59,7 +59,10 @@ export function TransportBar() {
         >
           <CastIcon className="size-3.5" />
         </Button>
-        <BroadcastSettings open={broadcastOpen} onOpenChange={setBroadcastOpen} />
+        <BroadcastSettings
+          open={broadcastOpen}
+          onOpenChange={setBroadcastOpen}
+        />
         <Button
           variant="ghost"
           size="icon-sm"

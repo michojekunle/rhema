@@ -1,8 +1,12 @@
-import { IconMicrophone, IconSearch, IconScreenShare } from "@tabler/icons-react";
-import { Container } from "../ui/container";
-import { FeatureCard } from "../ui/feature-card";
-import { Reveal } from "../ui/reveal";
-import { SectionHeading } from "./section-heading";
+import {
+  IconMicrophone,
+  IconSearch,
+  IconScreenShare,
+} from "@tabler/icons-react"
+import { Container } from "../ui/container"
+import { FeatureCard } from "../ui/feature-card"
+import { Reveal } from "../ui/reveal"
+import { SectionHeading } from "./section-heading"
 
 const STEPS = [
   {
@@ -20,7 +24,7 @@ const STEPS = [
     title: "Display",
     body: "Verses appear instantly as broadcast-ready overlays via NDI.",
   },
-] as const;
+] as const
 
 export function HowItWorksSection() {
   return (
@@ -31,9 +35,11 @@ export function HowItWorksSection() {
     >
       <Container className="flex flex-col gap-10 md:gap-14 lg:gap-16">
         <Reveal>
-          <SectionHeading id="how-it-works-heading">How it works</SectionHeading>
+          <SectionHeading id="how-it-works-heading">
+            How it works
+          </SectionHeading>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 md:[&>*]:-ml-px md:[&>*]:-mt-px">
+        <div className="grid grid-cols-1 md:grid-cols-3 md:[&>*]:-mt-px md:[&>*]:-ml-px">
           {STEPS.map((s, i) => (
             <Reveal key={s.title} delay={i * 80} className="flex">
               <FeatureCard
@@ -47,5 +53,5 @@ export function HowItWorksSection() {
         </div>
       </Container>
     </section>
-  );
+  )
 }

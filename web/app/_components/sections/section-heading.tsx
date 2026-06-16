@@ -1,4 +1,4 @@
-import { cn } from "../../_lib/utils";
+import { cn } from "../../_lib/utils"
 
 export function SectionHeading({
   children,
@@ -7,11 +7,11 @@ export function SectionHeading({
   align = "left",
   id,
 }: {
-  children: React.ReactNode;
-  subtitle?: React.ReactNode;
-  className?: string;
-  align?: "left" | "center";
-  id?: string;
+  children: React.ReactNode
+  subtitle?: React.ReactNode
+  className?: string
+  align?: "left" | "center"
+  id?: string
 }) {
   return (
     <div
@@ -36,5 +36,5 @@ export function SectionHeading({
         </p>
       )}
     </div>
-  );
+  )
 }
