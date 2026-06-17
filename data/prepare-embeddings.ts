@@ -97,15 +97,18 @@ async function main() {
 
   // ── Phase 1: Python environment ────────────────────────────────
   console.log("\n━━━ Phase 1/7: Python environment ━━━")
-  await ensurePythonEnv([
+  const packages = [
     "optimum-onnx[onnxruntime]",
-    "sentence-transformers",
-    "accelerate",
     "tokenizers",
     "numpy",
-    "torch",
     "meaningless",
-  ])
+  ]
+  if (process.env.GITHUB_ACTIONS !== "true") {
+    packages.push("sentence-transformers", "accelerate", "torch")
+  } else {
+    console.log("  Running in GitHub Actions: Skipping heavy packages (torch, sentence-transformers, accelerate) to optimize build speed...")
+  }
+  await ensurePythonEnv(packages)
 
   // ── Phase 2: Bible source data (pre-built zip + cross-refs) ────
   console.log("\n━━━ Phase 2/7: Download Bible source data ━━━")

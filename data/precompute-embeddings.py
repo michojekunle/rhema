@@ -184,12 +184,17 @@ def main():
     texts = [e["text"] for e in entries]
 
     # Try GPU path first, fall back to ONNX
-    try:
-        import torch
-        all_embeddings = encode_with_sentence_transformers(texts)
-    except ImportError:
-        print("  torch not available, falling back to ONNX Runtime...")
+    import os
+    if os.environ.get("GITHUB_ACTIONS") == "true" or "--onnx" in sys.argv:
+        print("  Running in CI/forced mode. Preferring ONNX Runtime (CPU quantized) for speed...")
         all_embeddings = encode_with_onnx(texts)
+    else:
+        try:
+            import torch
+            all_embeddings = encode_with_sentence_transformers(texts)
+        except ImportError:
+            print("  torch not available, falling back to ONNX Runtime...")
+            all_embeddings = encode_with_onnx(texts)
 
     dim = all_embeddings.shape[1]
     print(f"  Embedding dimension: {dim}")
