@@ -51,6 +51,8 @@ jobs:
 
       - name: Install Rust stable
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rust-src-dir: src-tauri
 
       - name: Install Node/Bun dependencies
         run: bun install
