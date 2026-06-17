@@ -16,6 +16,8 @@ jobs:
         platform: [macos-latest, windows-latest, ubuntu-22.04]
 
     runs-on: ${{ matrix.platform }}
+    env:
+      CARGO_HTTP_MULTIPLEXING: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
